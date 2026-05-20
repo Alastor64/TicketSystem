@@ -6,11 +6,12 @@ template <typename T> void fileWrite(std::fstream &fs, const T &x) {
 template <typename T> void fileRead(std::fstream &fs, T &x) {
     fs.read(reinterpret_cast<char *>(&x), sizeof(x));
 }
-template <typename T> class Filer {
+template <typename T, int headSize = 0> class Filer {
   public:
     using fstream = std::fstream;
     using ios = std::ios;
     static constexpr int headPos = 2 * sizeof(int);
+    static constexpr int dataPos = headPos + headSize;
     static constexpr int TSize = sizeof(T);
     int last;
     int tail;
@@ -18,9 +19,13 @@ template <typename T> class Filer {
     void init(const char *s) {
         fs.open(s, ios::binary | ios::out);
         last = 0;
-        tail = headPos;
+        tail = dataPos;
         fileWrite(fs, tail);
         fileWrite(fs, last);
+        int tmp = 0;
+        for (int i = 0; i < headSize; i++) {
+            fileWrite(fs, tmp);
+        }
         fs.close();
         fs.open(s, ios::in | ios::out | ios::binary);
     }
@@ -30,10 +35,21 @@ template <typename T> class Filer {
     }
     Filer(const char *s) {
         fs.open(s, ios::out | ios::in | ios::binary);
-        if (fs)
+        if (fs) {
             load(s);
-        else
+        } else {
             init(s);
+        }
+    }
+    void intUpdata(int x, int i = 0) {
+        fs.seekp(headPos + i * sizeof(int));
+        fileWrite(fs, x);
+    }
+    int intRead(int i = 0) {
+        fs.seekg(headPos + i * sizeof(int));
+        int tmp;
+        fileWrite(fs, tmp);
+        return tmp;
     }
     int push(const T &x) {
         int tmp;

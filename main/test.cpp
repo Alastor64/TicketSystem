@@ -1,17 +1,11 @@
+#include "BPT.hpp"
 #include "Filer.hpp"
 #include <iostream>
 using namespace std;
 int main() {
     cout << "hello\n";
-    Filer<int> a("zz");
-    int k;
-    a.read(8, k);
-    cout << k << "\n";
-    a.push(2);
-    int i = a.push(3);
-    a.push(4);
-    a.pop(i);
-    a.push(6);
-    a.push(7);
+    Filer<int[10]> a("zz");
+    BPT<int> b("zf");
+    a.push({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     return 0;
 }
