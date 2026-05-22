@@ -54,12 +54,14 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             }
         }
         void delson(int index) {
-            for (int i = index; i < size; i++) {
+            for (int i = index; i < size - 1; i++) {
                 son[i] = son[i + 1];
             }
         }
         void merge(node &b) {
             // add |*|*|*
+            if (next != END)
+                next = b.next;
             for (int i = 0; i < b.size; i++)
                 add(b.a[i], b.son[i]);
         }
@@ -177,6 +179,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                 }
             }
         }
+        // will always return in for cycle
     }
     void del(const T &x) {
         if (rootIndex) {
@@ -217,7 +220,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     data.read(val.son[i], tmp);
                     bool needUpdata = del(x, val.son[i], tmp);
                     if (tmp.size * 2 < degree) {
-                        bool isL;
+                        bool isL; // needn't init
                         if (i) {
                             isL = 1;
                             data.read(val.son[i - 1], Gtmp);
