@@ -14,8 +14,11 @@ template <typename T, int degree = getDegree<T>()> class BPT {
   public:
     static constexpr int END = -1;
     class node {
+        // |*|*|*
+        // * is a
+        // | is son
       public:
-        T a[degree];
+        T a[degree + 1];
         // sorted increasingly
         // a[i] is the maximun element of son[i]
         int son[degree + 1];
@@ -30,30 +33,20 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             size = 0;
         }
         void add(const T &x, int _son = 0) {
-            a[size++] = x;
-            son[size] = _son;
+            a[size] = x;
+            son[size++] = _son;
         }
-        void ins(const T &x, int index, int _son = 0) {
-            // |*|*|
-            // we ins *|
+        void insa(const T &x, int index) {
             for (int i = size; i > index; i--) {
                 a[i] = a[i - 1];
-                son[i + 1] = son[i];
             }
-            size++;
             a[index] = x;
-            son[index + 1] = _son;
         }
-        void push_front(const T &x, int _son) {
-            for (int i = size; i > 0; i--) {
-                a[i] = a[i - 1];
-            }
-            for (int i = size + 1; i > 0; i--) {
+        void inss(int _son, int index) {
+            for (int i = size; i > index; i--) {
                 son[i] = son[i - 1];
             }
-            a[0] = x;
-            son[0] = _son;
-            size++;
+            son[index] = _son;
         }
         void dela(int index) {
             for (int i = index; i < size - 1; i++) {
@@ -66,11 +59,9 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             }
         }
         void merge(node &b) {
-            // this need to be leaf or something like(|*|*|*,size=3)
-            // add |*|*|*|
-            son[size] = b.son[0];
+            // add |*|*|*
             for (int i = 0; i < b.size; i++)
-                add(b.a[i], b.son[i + 1]);
+                add(b.a[i], b.son[i]);
         }
     } Gtmp;
     int split(int index, node &tmp, T &back) {
@@ -79,16 +70,12 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         // for leaf remember to adjust next
         // this function do change data!
         node nw(END);
+        back = tmp.a[tmp.size / 2 - 1];
         if (tmp.next != END) {
-            back = tmp.a[tmp.size / 2 - 1];
             nw.next = tmp.next;
-        } else {
-            back = tmp.a[tmp.size / 2];
         }
-        nw.son[0] = tmp.son[tmp.size / 2 + 1];
-        for (int i = (tmp.next != END ? tmp.size / 2 : tmp.size / 2 + 1);
-             i < tmp.size; i++) {
-            nw.add(tmp.a[i], tmp.son[i + 1]);
+        for (int i = tmp.size / 2; i < tmp.size; i++) {
+            nw.add(tmp.a[i], tmp.son[i]);
         }
         tmp.size /= 2;
         int R = data.push(nw);
@@ -125,11 +112,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                 }
             }
         }
-        if (Gtmp.next == END) {
-            return lower_bound(x, Gtmp.son[Gtmp.size]);
-        } else {
-            return END;
-        }
+        return END;
     }
     void insert(const T &x) {
         if (rootIndex) {
@@ -137,13 +120,13 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             data.read(rootIndex, tmp);
             // printf("%d\n", rootIndex);
             bool needUpdata = insert(x, rootIndex, tmp);
-            if (tmp.size >= degree) {
-                T md;
-                int L = rootIndex, R = split(rootIndex, tmp, md);
+            if (tmp.size > degree) {
+                T La;
+                T Ra = tmp.a[tmp.size - 1];
+                int L = rootIndex, R = split(rootIndex, tmp, La);
                 node tmp2(END);
-                tmp2.add(md);
-                tmp2.son[0] = L;
-                tmp2.son[1] = R;
+                tmp2.add(La, L);
+                tmp2.add(Ra, R);
                 rootIndex = data.push(tmp2);
             } else {
                 if (needUpdata) {
@@ -157,10 +140,22 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         }
     }
     bool insert(const T &x, int index, node &val) {
-        for (int i = 0; i <= val.size; i++) {
-            if (i == val.size || x <= val.a[i]) {
+        for (int i = 0; i < val.size; i++) {
+            if (x <= val.a[i] || i + 1 == val.size) {
+                bool flag = 0;
+                if (x > val.a[i]) {
+                    if (val.next == END) {
+                        val.a[i] = x;
+                        flag = 1;
+                    } else {
+                        val.add(x);
+                        return 1;
+                    }
+                }
                 if (val.next != END) {
-                    val.ins(x, i);
+                    val.insa(x, i);
+                    val.inss(0, i);
+                    val.size++;
                     return 1;
                 } else {
                     node tmp;
@@ -169,18 +164,15 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     if (tmp.size >= degree) {
                         T A;
                         int R = split(val.son[i], tmp, A);
-                        val.ins(A, i, R);
+                        val.insa(A, i);
+                        val.inss(R, i + 1);
+                        val.size++;
                         return 1;
                     } else {
                         if (needUpdata) {
                             data.update(val.son[i], tmp);
-                            // if (tmp.next != END &&
-                            //     tmp.a[tmp.size - 1] != val.a[i]) {
-                            //     val.a[i] = tmp.a[tmp.size - 1];
-                            //     return 1;
-                            // }
                         }
-                        return 0;
+                        return flag;
                     }
                 }
             }
@@ -192,12 +184,15 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             data.read(rootIndex, tmp);
             bool needUpdata = del(x, rootIndex, tmp);
             // cout << needUpdata << endl;
-            if (!tmp.size) {
-                data.pop(rootIndex);
-                if (tmp.next != END) {
-                    rootIndex = 0;
-                } else {
+            if (tmp.size < 2) {
+                if (tmp.next == END) {
+                    data.pop(rootIndex);
                     rootIndex = tmp.son[0];
+                } else {
+                    if (tmp.size < 1) {
+                        data.pop(rootIndex);
+                        rootIndex = 0;
+                    }
                 }
             } else {
                 if (needUpdata) {
@@ -207,10 +202,10 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         }
     }
     bool del(const T &x, int index, node &val) {
-        for (int i = 0; i <= val.size; i++) {
-            if (i == val.size || x <= val.a[i]) {
+        for (int i = 0; i < val.size; i++) {
+            if (x <= val.a[i]) {
                 if (val.next != END) {
-                    if (i < val.size && x == val.a[i]) {
+                    if (x == val.a[i]) {
                         val.dela(i);
                         val.size--;
                         return 1;
@@ -221,21 +216,17 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     node tmp;
                     data.read(val.son[i], tmp);
                     bool needUpdata = del(x, val.son[i], tmp);
-                    if (tmp.size * 2 < degree - 1) {
+                    if (tmp.size * 2 < degree) {
                         bool isL;
                         if (i) {
                             isL = 1;
                             data.read(val.son[i - 1], Gtmp);
                             if (Gtmp.size * 2 > degree) {
-                                if (tmp.next == END) {
-                                    tmp.push_front(val.a[i - 1],
-                                                   Gtmp.son[Gtmp.size]);
-                                    val.a[i - 1] = Gtmp.a[Gtmp.size - 1];
-                                } else {
-                                    tmp.push_front(Gtmp.a[Gtmp.size - 1], 0);
-                                    val.a[i - 1] = Gtmp.a[Gtmp.size - 2];
-                                }
+                                tmp.insa(Gtmp.a[Gtmp.size - 1], 0);
+                                tmp.inss(Gtmp.son[Gtmp.size - 1], 0);
+                                tmp.size++;
                                 Gtmp.size--;
+                                val.a[i - 1] = Gtmp.a[Gtmp.size - 1];
                                 data.update(val.son[i], tmp);
                                 data.update(val.son[i - 1], Gtmp);
                                 return 1;
@@ -245,27 +236,17 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                             isL = 0;
                             data.read(val.son[i + 1], Gtmp);
                             if (Gtmp.size * 2 > degree) {
-                                if (tmp.next == END) {
-                                    tmp.ins(val.a[i], tmp.size, Gtmp.son[0]);
-                                    val.a[i] = Gtmp.a[0];
-                                } else {
-                                    tmp.ins(Gtmp.a[0], tmp.size, 0);
-                                    val.a[i] = tmp.a[tmp.size - 1];
-                                }
+                                tmp.add(Gtmp.a[0], Gtmp.son[0]);
                                 Gtmp.dela(0);
                                 Gtmp.delson(0);
                                 Gtmp.size--;
+                                val.a[i] = tmp.a[tmp.size - 1];
                                 data.update(val.son[i], tmp);
                                 data.update(val.son[i + 1], Gtmp);
                                 return 1;
                             }
                         }
                         if (isL) {
-                            if (tmp.next == END) {
-                                Gtmp.add(val.a[i - 1]);
-                            } else {
-                                Gtmp.next = tmp.next;
-                            }
                             Gtmp.merge(tmp);
                             data.update(val.son[i - 1], Gtmp);
                             data.pop(val.son[i]);
@@ -274,11 +255,6 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                             val.size--;
                             return 1;
                         } else {
-                            if (tmp.next == END) {
-                                tmp.add(val.a[i]);
-                            } else {
-                                tmp.next = Gtmp.next;
-                            }
                             tmp.merge(Gtmp);
                             data.update(val.son[i], tmp);
                             data.pop(val.son[i + 1]);
@@ -290,11 +266,16 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     } else {
                         if (needUpdata) {
                             data.update(val.son[i], tmp);
+                            if (tmp.a[tmp.size - 1] != val.a[i]) {
+                                val.a[i] = tmp.a[tmp.size - 1];
+                                return 1;
+                            }
                         }
                         return 0;
                     }
                 }
             }
         }
+        return 0;
     }
 };
