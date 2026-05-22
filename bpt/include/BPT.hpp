@@ -174,11 +174,11 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     } else {
                         if (needUpdata) {
                             data.update(val.son[i], tmp);
-                            if (tmp.next != END &&
-                                tmp.a[tmp.size - 1] != val.a[i]) {
-                                val.a[i] = tmp.a[tmp.size - 1];
-                                return 1;
-                            }
+                            // if (tmp.next != END &&
+                            //     tmp.a[tmp.size - 1] != val.a[i]) {
+                            //     val.a[i] = tmp.a[tmp.size - 1];
+                            //     return 1;
+                            // }
                         }
                         return 0;
                     }
