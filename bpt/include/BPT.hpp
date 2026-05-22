@@ -1,7 +1,7 @@
 #pragma once
 #include "Filer.hpp"
 #include "predef.hpp"
-constexpr int readSize = 5000;
+constexpr int readSize = 1000;
 template <typename T> constexpr int getDegree() {
     constexpr int tmp = readSize / sizeof(T);
     if constexpr (!(tmp & 1)) {
