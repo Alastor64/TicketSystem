@@ -161,7 +161,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     node tmp;
                     data.read(val.son[i], tmp);
                     bool needUpdata = insert(x, val.son[i], tmp);
-                    if (tmp.size >= degree) {
+                    if (tmp.size > degree) {
                         T A;
                         int R = split(val.son[i], tmp, A);
                         val.insa(A, i);
@@ -232,7 +232,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                                 return 1;
                             }
                         }
-                        if (i < val.size) {
+                        if (i < val.size - 1) {
                             isL = 0;
                             data.read(val.son[i + 1], Gtmp);
                             if (Gtmp.size * 2 > degree) {

@@ -1,10 +1,4 @@
-#include "BPT.hpp"
-#include "Filer.hpp"
 #include "pretest.hpp"
-#include <cstdlib>
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
 using namespace std;
 // using namespace pretest;
 int main() {
