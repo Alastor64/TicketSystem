@@ -22,7 +22,10 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         int son[degree + 1];
         int size;
         int next; // for not leaf next=END for the most right leaf next=0
-        node() {}
+        node() {
+            size = 0;
+            next = END;
+        }
         node(int _next) {
             next = _next;
             size = 0;
@@ -104,7 +107,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         // note: rootIndex=0 for empty
         rootIndex = data.intRead();
     }
-    ~BPT() { data.intUpdata(rootIndex); }
+    ~BPT() { data.intUpdate(rootIndex); }
     int lower_bound(const T &x, int index = 0) {
         if (!index) {
             if (!rootIndex) {

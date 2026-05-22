@@ -41,7 +41,7 @@ template <typename T, int headSize = 0> class Filer {
             init(s);
         }
     }
-    void intUpdata(int x, int i = 0) {
+    void intUpdate(int x, int i = 0) {
         fs.seekp(headPos + i * sizeof(int));
         fileWrite(fs, x);
     }
