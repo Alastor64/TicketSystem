@@ -2,7 +2,7 @@
 #include "Filer.hpp"
 #include "predef.hpp"
 #include <cstdio>
-constexpr int readSize = 100000;
+constexpr int readSize = 10000;
 template <typename T> constexpr int getDegree() {
     constexpr int tmp = readSize / sizeof(T);
     if constexpr (!(tmp & 1)) {
