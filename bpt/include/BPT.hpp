@@ -220,9 +220,14 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                             isL = 1;
                             data.read(val.son[i - 1], Gtmp);
                             if (Gtmp.size * 2 > degree) {
-                                tmp.push_front(val.a[i - 1],
-                                               Gtmp.son[Gtmp.size]);
-                                val.a[i - 1] = Gtmp.a[Gtmp.size - 1];
+                                if (tmp.next == END) {
+                                    tmp.push_front(val.a[i - 1],
+                                                   Gtmp.son[Gtmp.size]);
+                                    val.a[i - 1] = Gtmp.a[Gtmp.size - 1];
+                                } else {
+                                    tmp.push_front(Gtmp.a[Gtmp.size - 1], 0);
+                                    val.a[i - 1] = Gtmp.a[Gtmp.size - 2];
+                                }
                                 Gtmp.size--;
                                 data.update(val.son[i], tmp);
                                 data.update(val.son[i - 1], Gtmp);
@@ -233,8 +238,15 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                             isL = 0;
                             data.read(val.son[i + 1], Gtmp);
                             if (Gtmp.size * 2 > degree) {
-                                tmp.ins(val.a[i], tmp.size, Gtmp.son[0]);
-                                val.a[i] = Gtmp.a[0];
+                                if (tmp.next == END) {
+                                    tmp.ins(val.a[i], tmp.size, Gtmp.son[0]);
+                                    val.a[i] = Gtmp.a[0];
+                                } else {
+                                    tmp.ins(Gtmp.a[0], tmp.size, 0);
+                                    val.a[i] = tmp.a[tmp.size - 1];
+                                }
+                                Gtmp.dela(0);
+                                Gtmp.delson(0);
                                 Gtmp.size--;
                                 data.update(val.son[i], tmp);
                                 data.update(val.son[i + 1], Gtmp);

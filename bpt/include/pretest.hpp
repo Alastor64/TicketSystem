@@ -1,12 +1,14 @@
 #pragma once
 #include "BPT.hpp"
 #include "predef.hpp"
+namespace pretest {
+
 constexpr int INT_MIN = -2147483648;
 typedef std::pair<pii, int> phi;
 template <int degree = getDegree<phi>()>
 void print(BPT<phi, degree> &b, pii x) {
     int l = b.lower_bound(phi(x, INT_MIN));
-    if (l == b.END) {
+    if (l == b.END || b.Gtmp.a[l].first != x) {
         cout << "null" << endl;
         return;
     }
@@ -27,4 +29,9 @@ void print(BPT<phi, degree> &b, pii x) {
     }
     cout << endl;
 }
+constexpr ll M1 = 1e9 + 7;
+constexpr ll M2 = 1e9 + 9;
+constexpr ll MB = 521;
 pii hash(const char *s);
+void main();
+} // namespace pretest
