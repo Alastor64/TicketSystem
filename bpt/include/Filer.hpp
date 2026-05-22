@@ -11,7 +11,7 @@ template <typename T, int headSize = 0> class Filer {
     using fstream = std::fstream;
     using ios = std::ios;
     static constexpr int headPos = 2 * sizeof(int);
-    static constexpr int dataPos = headPos + headSize;
+    static constexpr int dataPos = headPos + headSize * sizeof(int);
     static constexpr int TSize = sizeof(T);
     int last;
     int tail;
@@ -48,7 +48,7 @@ template <typename T, int headSize = 0> class Filer {
     int intRead(int i = 0) {
         fs.seekg(headPos + i * sizeof(int));
         int tmp;
-        fileWrite(fs, tmp);
+        fileRead(fs, tmp);
         return tmp;
     }
     int push(const T &x) {

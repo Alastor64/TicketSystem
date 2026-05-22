@@ -1,11 +1,25 @@
 #include "BPT.hpp"
 #include "Filer.hpp"
+#include "pretest.hpp"
+#include <cstdlib>
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 using namespace std;
 int main() {
-    cout << "hello\n";
-    Filer<int[10]> a("zz");
-    BPT<int> b("zf");
-    a.push({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+    srand(time(NULL));
+    BPT<phi, 3> b("zf");
+    pii k = pii(0, 0);
+    for (int i = 0; i < 50; i++) {
+        int x = i;
+        cout << x << " ";
+        b.insert(phi(k, x));
+    }
+    // b.insert(phi(k, 4));
+    b.del(phi(k, 4));
+    cout << endl;
+    cout << endl;
+    cout << endl;
+    print(b, k);
     return 0;
 }
