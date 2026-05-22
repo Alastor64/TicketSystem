@@ -195,6 +195,8 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     if (tmp.size < 1) {
                         data.pop(rootIndex);
                         rootIndex = 0;
+                    } else {
+                        data.update(rootIndex, tmp);
                     }
                 }
             } else {
@@ -224,7 +226,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                         if (i) {
                             isL = 1;
                             data.read(val.son[i - 1], Gtmp);
-                            if (Gtmp.size * 2 > degree) {
+                            if (Gtmp.size * 2 > degree + 1) {
                                 tmp.insa(Gtmp.a[Gtmp.size - 1], 0);
                                 tmp.inss(Gtmp.son[Gtmp.size - 1], 0);
                                 tmp.size++;
@@ -238,7 +240,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                         if (i < val.size - 1) {
                             isL = 0;
                             data.read(val.son[i + 1], Gtmp);
-                            if (Gtmp.size * 2 > degree) {
+                            if (Gtmp.size * 2 > degree + 1) {
                                 tmp.add(Gtmp.a[0], Gtmp.son[0]);
                                 Gtmp.dela(0);
                                 Gtmp.delson(0);
