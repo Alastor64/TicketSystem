@@ -1,7 +1,7 @@
 #pragma once
 #include "Filer.hpp"
 #include "predef.hpp"
-constexpr int readSize = 10000;
+constexpr int readSize = 5000;
 template <typename T> constexpr int getDegree() {
     constexpr int tmp = readSize / sizeof(T);
     if constexpr (!(tmp & 1)) {
@@ -60,10 +60,12 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         }
         void merge(node &b) {
             // add |*|*|*
-            if (next != END)
+            if (next != END) {
                 next = b.next;
-            for (int i = 0; i < b.size; i++)
+            }
+            for (int i = 0; i < b.size; i++) {
                 add(b.a[i], b.son[i]);
+            }
         }
     } Gtmp;
     int split(int index, node &tmp, T &back) {
@@ -185,7 +187,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         if (rootIndex) {
             node tmp;
             data.read(rootIndex, tmp);
-            bool needUpdata = del(x, rootIndex, tmp);
+            bool needUpdata = del(x, tmp);
             // cout << needUpdata << endl;
             if (tmp.size < 2) {
                 if (tmp.next == END) {
@@ -206,7 +208,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
             }
         }
     }
-    bool del(const T &x, int index, node &val) {
+    bool del(const T &x, node &val) {
         for (int i = 0; i < val.size; i++) {
             if (x <= val.a[i]) {
                 if (val.next != END) {
@@ -220,7 +222,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                 } else {
                     node tmp;
                     data.read(val.son[i], tmp);
-                    bool needUpdata = del(x, val.son[i], tmp);
+                    bool needUpdata = del(x, tmp);
                     if (tmp.size * 2 < degree) {
                         bool isL; // needn't init
                         if (i) {
