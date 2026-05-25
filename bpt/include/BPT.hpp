@@ -1,4 +1,3 @@
-// this code has bug!
 #pragma once
 #include "Filer.hpp"
 #include "predef.hpp"
