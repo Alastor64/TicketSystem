@@ -224,6 +224,11 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     node tmp;
                     data.read(val.son[i], tmp);
                     bool needUpdata = del(x, tmp);
+                    bool flag = 0;
+                    if (val.a[i] != tmp.a[tmp.size - 1]) {
+                        val.a[i] = tmp.a[tmp.size - 1];
+                        flag = 1;
+                    }
                     if (tmp.size * 2 < degree) {
                         bool isL; // needn't init
                         if (i) {
@@ -274,12 +279,12 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                     } else {
                         if (needUpdata) {
                             data.update(val.son[i], tmp);
-                            if (tmp.a[tmp.size - 1] != val.a[i]) {
-                                val.a[i] = tmp.a[tmp.size - 1];
-                                return 1;
-                            }
+                            // if (tmp.a[tmp.size - 1] != val.a[i]) {
+                            //     val.a[i] = tmp.a[tmp.size - 1];
+                            //     return 1;
+                            // }
                         }
-                        return 0;
+                        return flag;
                     }
                 }
             }
