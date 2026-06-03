@@ -1,0 +1,11 @@
+外存：
+bpt<username,index>"userindex"
+filer<class user>"userdata"
+class user
+	arraystring<21> username ,<31>password,<5*cn+1>name,<31>mailAddr
+	int privilege
+const cn=3 (UTF-8)
+
+
+内存：
+map<username,privilege>记录登录状态
