@@ -293,7 +293,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
 };
 
 template <typename Key, typename Value, int maxlen>
-bool getValue(BPT<pair<Key, Value>, maxlen> &bpt,
+bool bptValue(BPT<pair<Key, Value>, maxlen> &bpt,
               pair<Key, Value> &tmp) { // return if key in bpt
     int index = bpt.lower_bound(tmp);
     if (bpt.Gtmp.a[index].first != tmp.first) {
