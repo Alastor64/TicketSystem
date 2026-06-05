@@ -1,5 +1,6 @@
 #pragma once
 #include "predef.hpp"
+constexpr int cn = 3; // UTF-8
 template <int maxlen> class arraystring {
   public:
     arraystring() {
@@ -12,6 +13,14 @@ template <int maxlen> class arraystring {
             s[len] = _s[len];
             len++;
         }
+        s[len] = '\0';
+    }
+    arraystring(const string &_s) {
+        len = _s.length();
+        for (int i = 0; i < len; i++) {
+            s[i] = _s[i];
+        }
+        s[len] = '\0';
     }
     char s[maxlen];
     int len;
@@ -27,4 +36,26 @@ template <int maxlen> class arraystring {
         output << x.s;
         return output;
     }
+    bool operator==(const arraystring &x) {
+        if (x.len != len)
+            return 0;
+        for (int i = 0; i < x.len; i++) {
+            if (x.s[i] != s[i])
+                return 0;
+        }
+        return 1;
+    }
+    bool operator<(const arraystring &x) {
+        for (int i = 0; i < min(len, x.len); i++) {
+            if (x.s[i] > s[i])
+                return 1;
+            if (s[i] > x.s[i])
+                return 0;
+        }
+        return len < x.len;
+    }
+    bool operator<=(const arraystring &x) { return *this == x || *this < x; }
+    bool operator>(const arraystring &x) { return !(*this <= x); }
+    bool operator>=(const arraystring &x) { return !(*this < x); }
+    bool operator!=(const arraystring &x) { return !(*this == x); }
 };

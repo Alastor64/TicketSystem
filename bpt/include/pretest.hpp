@@ -3,11 +3,10 @@
 #include "predef.hpp"
 namespace pretest {
 
-constexpr int INT_MIN = -2147483648;
 typedef std::pair<pii, int> phi;
 template <int degree = getDegree<phi>()>
 void print(BPT<phi, degree> &b, pii x) {
-    int l = b.lower_bound(phi(x, INT_MIN));
+    int l = b.lower_bound(phi(x, INT_MINIMUN));
     if (l == b.END || b.Gtmp.a[l].first != x) {
         cout << "null" << endl;
         return;

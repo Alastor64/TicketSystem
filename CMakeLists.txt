@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 添加头文件搜索路径
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/bpt/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ticket/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/map)
 
 # 获取 bpt/src 下所有源文件（作为公共部分）
 file(GLOB BPT_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/bpt/src/*.cpp")

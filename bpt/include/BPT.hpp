@@ -98,7 +98,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         rootIndex = data.intRead();
     }
     ~BPT() { data.intUpdate(rootIndex); }
-    int lower_bound(const T &x, int index = 0) {
+    int lower_bound(const T &x, int index = 0) { // return index of Gtmp
         if (!index) {
             if (!rootIndex) {
                 return END;
@@ -291,3 +291,14 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         return 0;
     }
 };
+
+template <typename Key, typename Value, int maxlen>
+bool getValue(BPT<pair<Key, Value>, maxlen> &bpt,
+              pair<Key, Value> &tmp) { // return if key in bpt
+    int index = bpt.lower_bound(tmp);
+    if (bpt.Gtmp.a[index].first != tmp.first) {
+        return 0;
+    }
+    tmp.second = bpt.Gtmp.a[index].second;
+    return 1;
+}

@@ -29,6 +29,7 @@ template <typename T, int headSize = 0> class Filer {
         fs.close();
         fs.open(s, ios::in | ios::out | ios::binary);
     }
+    bool blank() { return tail == dataPos; }
     void load(const char *s) {
         fileRead(fs, tail);
         fileRead(fs, last);

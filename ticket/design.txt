@@ -1,5 +1,7 @@
 外存：
 bpt<username,index>"userindex"
+#bpt<username,privilege>"userprivilege"
+//多一次寻址，但是degree大了
 filer<class user>"userdata"
 class user
 	arraystring<21> username ,<31>password,<5*cn+1>name,<31>mailAddr
@@ -7,5 +9,15 @@ class user
 const cn=3 (UTF-8)
 
 
+
 内存：
-map<username,privilege>记录登录状态
+map<username,privilege>loggeduser记录登录状态
+class command
+	char*key[],*argument[]
+	int timestamp
+
+算法：
+query_ticket 归并所有能从s出发的车次与能到t的车次
+			1000000*O(车)
+query_transfer 将所有能从s出发的车次与能到t的车次按中转站拆分，再按<中转站，到达/出发时间>排序，最后双指针
+			10000*100*O(车）
