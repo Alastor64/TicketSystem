@@ -4,9 +4,13 @@
 #include "predef.hpp"
 
 constexpr bool DEBUG = 1;
+template <typename T> class less {
+  public:
+    bool operator()(const T &a, const T &b) { return a < b; }
+};
 namespace sjtu {
 
-template <class Key, class T, class Compare = std::less<Key>> class map {
+template <class Key, class T, class Compare = less<Key>> class map {
   public:
     typedef pair<const Key, T> value_type;
     template <typename U> class base_iterator;

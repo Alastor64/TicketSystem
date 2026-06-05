@@ -36,7 +36,7 @@ template <int maxlen> class arraystring {
         output << x.s;
         return output;
     }
-    bool operator==(const arraystring &x) {
+    bool operator==(const arraystring &x) const {
         if (x.len != len)
             return 0;
         for (int i = 0; i < x.len; i++) {
@@ -45,7 +45,7 @@ template <int maxlen> class arraystring {
         }
         return 1;
     }
-    bool operator<(const arraystring &x) {
+    bool operator<(const arraystring &x) const {
         for (int i = 0; i < min(len, x.len); i++) {
             if (x.s[i] > s[i])
                 return 1;
@@ -54,8 +54,10 @@ template <int maxlen> class arraystring {
         }
         return len < x.len;
     }
-    bool operator<=(const arraystring &x) { return *this == x || *this < x; }
-    bool operator>(const arraystring &x) { return !(*this <= x); }
-    bool operator>=(const arraystring &x) { return !(*this < x); }
-    bool operator!=(const arraystring &x) { return !(*this == x); }
+    bool operator<=(const arraystring &x) const {
+        return *this == x || *this < x;
+    }
+    bool operator>(const arraystring &x) const { return !(*this <= x); }
+    bool operator>=(const arraystring &x) const { return !(*this < x); }
+    bool operator!=(const arraystring &x) const { return !(*this == x); }
 };

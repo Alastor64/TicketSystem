@@ -1,12 +1,13 @@
 // #include "BPT.hpp"
-#include "arraystring.hpp"
-#include "predef.hpp"
+// #include "arraystring.hpp"
+// #include "predef.hpp"
 // #include "pretest.hpp"
 int main() {
-    arraystring<20> s;
-    cin >> s;
-    cout << s << "\n";
-    cout << s.len << "\n";
+    // arraystring<20> s;
+    // cin >> s;
+    // cout << s << "\n";
+    // cout << s.len << "\n";
+
     // BPT<pretest::phi, 3> b("ff");
     // pii k = pii(1, 4);
     // // b.insert(pretest::phi(k, 0));
