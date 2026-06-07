@@ -493,7 +493,8 @@ template <class Key, class T, class Compare = less<Key>> class map {
             return ptr != rhs.ptr;
         }
 
-        U *operator->() const noexcept {
+        U *operator->() const
+        /*noexcept # i don't if cutting it will generate any unknown error*/ {
             if (!ptr)
                 throw invalid_iterator();
             if (ptr->father)

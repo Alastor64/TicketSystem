@@ -1,5 +1,7 @@
 #pragma once
 #include <fstream>
+#include <string>
+using std::string;
 template <typename T> void fileWrite(std::fstream &fs, const T &x) {
     fs.write(reinterpret_cast<const char *>(&x), sizeof(x));
 }
@@ -16,7 +18,7 @@ template <typename T, int headSize = 0> class Filer {
     int last;
     int tail;
     std::fstream fs;
-    void init(const char *s) {
+    void init(const string &s) {
         fs.open(s, ios::binary | ios::out);
         last = 0;
         tail = dataPos;
@@ -30,11 +32,12 @@ template <typename T, int headSize = 0> class Filer {
         fs.open(s, ios::in | ios::out | ios::binary);
     }
     bool blank() { return tail == dataPos; }
-    void load(const char *s) {
+    void load(const string &s) {
         fileRead(fs, tail);
         fileRead(fs, last);
     }
-    Filer(const char *s) {
+    Filer(string s) {
+        s = s + ".data";
         fs.open(s, ios::out | ios::in | ios::binary);
         if (fs) {
             load(s);

@@ -1,6 +1,13 @@
-#include "pretest.hpp"
-using namespace std;
+#include "command.hpp"
+#include "user.hpp"
 int main() {
-    pretest::main();
+    user_init();
+    try {
+        cmd();
+    } catch (string s) {
+        cout << s << endl;
+    } catch (const char *s) {
+        cout << s << endl;
+    }
     return 0;
 }

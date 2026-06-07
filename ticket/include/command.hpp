@@ -5,5 +5,9 @@ class Command {
   public:
     string argument[26];
     int timestamp;
-    string operator[](char c);
+    string &operator[](char c);
+    void clear();
 };
+void getCommand(Command &, string &);
+void exit();
+void cmd();

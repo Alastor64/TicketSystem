@@ -14,3 +14,9 @@ zz
 TicketSystem/
 *.zip
 .gitignore
+code_BPT
+out.txt
+*.data
+testfind
+*.in
+*.out

@@ -181,6 +181,7 @@ template <typename T, int degree = getDegree<T>()> class BPT {
                 }
             }
         }
+        throw "insert no return";
         // will always return in for cycle
     }
     void del(const T &x) {

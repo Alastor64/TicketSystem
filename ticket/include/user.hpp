@@ -17,4 +17,8 @@ class User {
          const int &g);
 };
 void user_init();
-int add_user(const Command &c);
+void add_user(Command &c);
+void login(Command &c);
+void logout(Command &c);
+void query_profile(Command &c);
+void modify_profile(Command &c);
