@@ -1,7 +1,6 @@
 #include "command.hpp"
 #include "user.hpp"
 #include <cstdio>
-#include <string>
 string &Command::operator[](char c) { return argument[c - 'a']; }
 void Command::clear() {
     for (int i = 0; i < 26; i++) {

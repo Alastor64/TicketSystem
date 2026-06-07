@@ -297,7 +297,8 @@ template <typename Key, typename Value, int maxlen>
 bool bptValue(BPT<pair<Key, Value>, maxlen> &bpt,
               pair<Key, Value> &tmp) { // return if key in bpt
     int index = bpt.lower_bound(tmp);
-    if (bpt.Gtmp.a[index].first != tmp.first) {
+    // cout << index << bpt.Gtmp.a[index].first << "|" << tmp.first << "\n";
+    if (index == bpt.END || bpt.Gtmp.a[index].first != tmp.first) {
         return 0;
     }
     tmp.second = bpt.Gtmp.a[index].second;

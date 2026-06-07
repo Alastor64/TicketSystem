@@ -21,23 +21,22 @@ bool firstuser;
 void user_init() { firstuser = userdata.blank(); }
 void add_user(Command &c) { //[N]
     int g;
-    Username tmp(c['c']);
     if (firstuser) {
         g = 10;
         firstuser = 0;
     } else {
         g = stoi(c['g']);
-        it I = loggeduser.find(tmp);
+        it I = loggeduser.find(c['c']);
         if (I == loggeduser.end() || I->second <= g) {
             cout << -1 << endl;
             return;
         }
     }
 #ifdef need_userprivilege
-    userprivilege.insert(pair<Username, int>(tmp, g));
+    userprivilege.insert(pair<Username, int>(c['u'], g));
 #endif
     userindex.insert(pair<Username, int>(
-        tmp, userdata.push(User(tmp, c['p'], c['n'], c['m'], g))));
+        c['u'], userdata.push(User(c['u'], c['p'], c['n'], c['m'], g))));
     cout << 0 << endl;
 }
 void login(Command &c) { //[F]
@@ -50,6 +49,7 @@ void login(Command &c) { //[F]
         cout << -1 << endl;
         return;
     }
+    // cout << "zz\n";
     int index = tmp.second;
     User u;
     userdata.read(index, u);
