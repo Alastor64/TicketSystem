@@ -83,7 +83,7 @@ void query_profile(Command &c) { //[SF]
     }
     User u;
     userdata.read(tmp.second, u);
-    if (u.privilege > g) {
+    if (u.privilege > g || (u.privilege == g && c['u'] != c['c'])) {
         cout << -1 << endl;
         return;
     }
