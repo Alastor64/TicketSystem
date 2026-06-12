@@ -1,7 +1,37 @@
 #include "command.hpp"
+#include "Filer.hpp"
+#include "predef.hpp"
+#include "train.hpp"
 #include "user.hpp"
 #include <cstdio>
+#include <filesystem>
 string &Command::operator[](char c) { return argument[c - 'a']; }
+void init() {
+    easy_new(userData, "userData");
+    easy_new(userIndex, "userIndex");
+    easy_new(trainData, "trainData");
+    easy_new(trainIndex, "trainIndex");
+    easy_new(releasedTrainIndex, "releasedTrainIndex");
+    easy_new(seatData, "seatData");
+    easy_new(seatIndex, "seatIndex");
+    easy_new(releasedSeatNum, "releasedSeatNum");
+    user_init();
+}
+void clean() {
+    delete userData;
+    delete userIndex;
+    delete trainData;
+    for (auto i : directory_iterator(".")) {
+        if (i.path().extension() == ".data") {
+            try {
+                std::filesystem::remove(i);
+            } catch (...) {
+                throw "unknown error in clean";
+            }
+        }
+    }
+    init();
+}
 void Command::clear() {
     for (int i = 0; i < 26; i++) {
         argument[i].clear();
@@ -79,6 +109,14 @@ void cmd() {
         } else if (type == "exit") {
             exit();
             break;
+        } else if (type == "clean") {
+            clean();
+        } else if (type == "query_train") {
+            query_train(tmp);
+        } else if (type == "delete_train") {
+            delete_train(tmp);
+        } else if (type == "add_train") {
+            add_train(tmp);
         } else {
             throw "invalid <cmd>:" + type;
         }

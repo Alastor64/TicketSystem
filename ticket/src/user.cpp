@@ -5,20 +5,19 @@
 #include "map.hpp"
 #include "predef.hpp"
 #include <utility>
-#define need_userprivilege
+// #define need_userprivilege
 User::User() {}
 User::User(const Username &u, const Password &p, const Name &n,
            const MailAddr &m, const int &g)
     : username(u), password(p), name(n), mailAddr(m), privilege(g) {}
-Filer<User, 1> userdata("userdata");
-BPT<pair<Username, int>> userindex("userindex");
+Filer<User, 1> *userData;
+BPT<pair<Username, int>> *userIndex;
 #ifdef need_userprivilege
-BPT<pair<Username, int>> userprivilege("userprivilege");
+BPT<pair<Username, int>> *userprivilege;
 #endif
 map<Username, int> loggeduser;
-typedef map<Username, int>::iterator it;
 bool firstuser;
-void user_init() { firstuser = userdata.blank(); }
+void user_init() { firstuser = userData->blank(); }
 void add_user(Command &c) { //[N]
     int g;
     if (firstuser) {
@@ -26,7 +25,7 @@ void add_user(Command &c) { //[N]
         firstuser = 0;
     } else {
         g = stoi(c['g']);
-        it I = loggeduser.find(c['c']);
+        decltype(loggeduser)::iterator I = loggeduser.find(c['c']);
         if (I == loggeduser.end() || I->second <= g) {
             cout << -1 << endl;
             return;
@@ -35,24 +34,24 @@ void add_user(Command &c) { //[N]
 #ifdef need_userprivilege
     userprivilege.insert(pair<Username, int>(c['u'], g));
 #endif
-    userindex.insert(pair<Username, int>(
-        c['u'], userdata.push(User(c['u'], c['p'], c['n'], c['m'], g))));
+    userIndex->insert(pair<Username, int>(
+        c['u'], userData->push(User(c['u'], c['p'], c['n'], c['m'], g))));
     cout << 0 << endl;
 }
 void login(Command &c) { //[F]
-    pair<Username, int> tmp(c['u'], INT_MINIMUN);
     if (loggeduser.find(c['u']) != loggeduser.end()) {
         cout << -1 << endl;
         return;
     }
-    if (!bptValue(userindex, tmp)) {
+    decltype(get_BPT_T(*userIndex)) tmp(c['u'], INT_MINIMUN);
+    if (!BPTValue(*userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
     // cout << "zz\n";
     int index = tmp.second;
-    User u;
-    userdata.read(index, u);
+    static User u;
+    userData->read(index, u);
     if (u.password != Password(c['p'])) {
         cout << -1 << endl;
         return;
@@ -77,12 +76,12 @@ void query_profile(Command &c) { //[SF]
     }
     int g = pos->second;
     pair<Username, int> tmp(c['u'], INT_MINIMUN);
-    if (!bptValue(userindex, tmp)) {
+    if (!BPTValue(*userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
-    User u;
-    userdata.read(tmp.second, u);
+    static User u;
+    userData->read(tmp.second, u);
     if (u.privilege > g || (u.privilege == g && c['u'] != c['c'])) {
         cout << -1 << endl;
         return;
@@ -98,12 +97,12 @@ void modify_profile(Command &c) {
     }
     int g = pos->second;
     pair<Username, int> tmp(c['u'], INT_MINIMUN);
-    if (!bptValue(userindex, tmp)) {
+    if (!BPTValue(*userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
-    User u;
-    userdata.read(tmp.second, u);
+    static User u;
+    userData->read(tmp.second, u);
     if ((g > u.privilege || c['c'] == c['u']) &&
         (c['g'].empty() || stoi(c['g']) < g)) {
         if (!c['p'].empty()) {
@@ -118,7 +117,7 @@ void modify_profile(Command &c) {
         if (!c['g'].empty()) {
             u.privilege = stoi(c['g']);
         }
-        userdata.update(tmp.second, u);
+        userData->update(tmp.second, u);
         cout << u.username << " " << u.name << " " << u.mailAddr << " "
              << u.privilege << endl;
     } else {

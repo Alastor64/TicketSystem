@@ -10,4 +10,7 @@ class Command {
 };
 void getCommand(Command &, string &);
 void exit();
+void clean();
+void init();
 void cmd();
+template <typename T> void easy_new(T *&ptr, const char *s) { ptr = new T(s); }

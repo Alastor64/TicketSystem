@@ -1,4 +1,6 @@
 #pragma once
+#include "BPT.hpp"
+#include "Filer.hpp"
 #include "arraystring.hpp"
 #include "command.hpp"
 typedef arraystring<21> Username;
@@ -22,3 +24,5 @@ void login(Command &c);
 void logout(Command &c);
 void query_profile(Command &c);
 void modify_profile(Command &c);
+extern Filer<User, 1> *userData;
+extern BPT<pair<Username, int>> *userIndex;

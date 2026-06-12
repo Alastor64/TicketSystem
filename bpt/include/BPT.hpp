@@ -1,7 +1,7 @@
 #pragma once
 #include "Filer.hpp"
 #include "predef.hpp"
-constexpr int readSize = 500;
+constexpr int readSize = 4096;
 template <typename T> constexpr int getDegree() {
     constexpr int tmp = readSize / sizeof(T);
     if constexpr (!(tmp & 1)) {
@@ -293,8 +293,8 @@ template <typename T, int degree = getDegree<T>()> class BPT {
     }
 };
 
-template <typename Key, typename Value, int maxlen>
-bool bptValue(BPT<pair<Key, Value>, maxlen> &bpt,
+template <typename Key, typename Value, int degree>
+bool BPTValue(BPT<pair<Key, Value>, degree> &bpt,
               pair<Key, Value> &tmp) { // return if key in bpt
     int index = bpt.lower_bound(tmp);
     // cout << index << bpt.Gtmp.a[index].first << "|" << tmp.first << "\n";
@@ -304,3 +304,12 @@ bool bptValue(BPT<pair<Key, Value>, maxlen> &bpt,
     tmp.second = bpt.Gtmp.a[index].second;
     return 1;
 }
+template <typename T, int degree>
+bool BPTContain(BPT<T, degree> &bpt, const T &tmp) {
+    int index = bpt.lower_bound(tmp);
+    if (index == bpt.END || bpt.Gtmp.a[index] != tmp) {
+        return 0;
+    }
+    return 1;
+}
+template <typename T, int degree> T get_BPT_T(BPT<T, degree> &bpt) {}

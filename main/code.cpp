@@ -1,7 +1,6 @@
 #include "command.hpp"
-#include "user.hpp"
 int main() {
-    user_init();
+    init();
     try {
         cmd();
     } catch (string s) {
