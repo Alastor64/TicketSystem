@@ -5,25 +5,14 @@ namespace pretest {
 
 typedef std::pair<pii, int> phi;
 template <int degree> void print(BPT<phi, degree> &b, pii x) {
-    int l = b.lower_bound(phi(x, INT_MINIMUN));
-    if (l == b.END || b.Gtmp.a[l].first != x) {
+    b.Gpos = b.lower_bound(phi(x, INT_MINIMUN));
+    if (b.GposInvalid() || b.Gvalue().first != x) {
         cout << "null" << endl;
         return;
     }
-    for (int i = l; i <= b.Gtmp.size; i++) {
-        if (i >= b.Gtmp.size) {
-            if (b.Gtmp.next) {
-                i = 0;
-                b.data.read(b.Gtmp.next, b.Gtmp);
-            } else {
-                break;
-            }
-        }
-        if (b.Gtmp.a[i].first == x) {
-            cout << b.Gtmp.a[i].second << " ";
-        } else {
-            break;
-        }
+    while (!b.GposInvalid() && b.Gvalue().first == x) {
+        cout << b.Gvalue().second << " ";
+        b.plusGpos();
     }
     cout << endl;
 }
