@@ -3,7 +3,8 @@
 #include "predef.hpp"
 constexpr int readSize = 4096;
 template <typename T> constexpr int getDegree() {
-    constexpr int tmp = readSize / sizeof(T);
+    constexpr int tmp =
+        (readSize - 2 * sizeof(int)) / (sizeof(T) + sizeof(int)) - 1;
     if constexpr (!(tmp & 1)) {
         return tmp - 1;
     } else {
@@ -97,7 +98,10 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         // note: rootIndex=0 for empty
         rootIndex = data.intRead();
     }
-    ~BPT() { data.intUpdate(rootIndex); }
+    ~BPT() {
+        data.intUpdate(rootIndex);
+        // cout << "zz\n";
+    }
     int lower_bound(const T &x, int index = 0) { // return index of Gtmp
         if (!index) {
             if (!rootIndex) {

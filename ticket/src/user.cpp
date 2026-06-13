@@ -43,6 +43,7 @@ void login(Command &c) { //[F]
         cout << -1 << endl;
         return;
     }
+    // cout << "zz\n";
     decltype(get_BPT_T(*userIndex)) tmp(c['u'], INT_MINIMUN);
     if (!BPTValue(*userIndex, tmp)) {
         cout << -1 << endl;

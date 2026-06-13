@@ -1,9 +1,11 @@
 #include "command.hpp"
 #include "Filer.hpp"
+#include "order.hpp"
 #include "predef.hpp"
 #include "train.hpp"
 #include "user.hpp"
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 string &Command::operator[](char c) { return argument[c - 'a']; }
 void init() {
@@ -17,12 +19,13 @@ void init() {
     easy_new(releasedSeatNum, "releasedSeatNum");
     easy_new(leaveTrain, "leaveTrain");
     easy_new(arriveTrain, "arriveTrain");
+    easy_new(orderIndex, "orderIndex");
+    easy_new(pendingOrder, "pendingOrder");
+    easy_new(orderData, "orderData");
     user_init();
 }
 void clean() {
-    delete userData;
-    delete userIndex;
-    delete trainData;
+    exit();
     for (auto i : directory_iterator(".")) {
         if (i.path().extension() == ".data") {
             try {
@@ -83,7 +86,21 @@ void getCommand(Command &tmp, string &type) {
     //     cin >> tmp[s.back()];
     // }
 }
-void exit() { cout << "bye" << endl; }
+void exit() {
+    delete userData;
+    delete userIndex;
+    delete trainData;
+    delete trainIndex;
+    delete releasedTrainIndex;
+    delete seatData;
+    delete seatIndex;
+    delete releasedSeatNum;
+    delete leaveTrain;
+    delete arriveTrain;
+    delete orderData;
+    delete pendingOrder;
+    delete orderIndex;
+}
 void cmd() {
     Command tmp;
     string type;
@@ -115,7 +132,7 @@ void cmd() {
             modify_profile(tmp);
         } else if (type == "exit") {
             exit_cnt++;
-            exit();
+            cout << "bye" << endl;
             break;
         } else if (type == "clean") {
             clean_cnt++;
@@ -137,6 +154,7 @@ void cmd() {
             buy_ticket(tmp);
         } else if (type == "query_ticket") {
             query_ticket_cnt++;
+            query_ticket(tmp);
         } else if (type == "query_order") {
             query_order_cnt++;
         } else if (type == "refund_ticket") {
@@ -147,6 +165,7 @@ void cmd() {
             throw "invalid <cmd>:" + type;
         }
     }
+    exit();
 }
 void command_cnt() {
     cout << "\n\n===================\n\n";

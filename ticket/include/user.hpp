@@ -3,6 +3,7 @@
 #include "Filer.hpp"
 #include "arraystring.hpp"
 #include "command.hpp"
+#include "map.hpp"
 typedef arraystring<21> Username;
 typedef arraystring<31> Password;
 typedef arraystring<5 * cn + 1> Name;
@@ -26,3 +27,4 @@ void query_profile(Command &c);
 void modify_profile(Command &c);
 extern Filer<User, 1> *userData;
 extern BPT<pair<Username, int>> *userIndex;
+extern map<Username, int> loggeduser;

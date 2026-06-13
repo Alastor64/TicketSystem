@@ -10,11 +10,11 @@ const cn=3 (UTF-8)
 
 class train
 class order
-	int begin,end,num,trainindex,status;
-#class order_detailed
+	int begin,end,num,index,timestamp;
+class order_detailed
 	int status;
-	trainName trainID;
-	stationName begin,end;
+	TrainID trainID;
+	StationName begin,end;
 	int leaveTime,arriveTime;
 	int price;
 	int num;
@@ -30,9 +30,9 @@ BPT<trainID,int>"releasedTrainIndex"O(10000*32)0.32M
 BPT<pair<pair<day,int(trainIndex)>,int>>"seatIndex"O(1000000*12)12M
 filer<int[100]>"seatData"O(1000000*400)400M
 BPT<pair<int(trainIndex),int(seatNum)>>"releasedSeatNum";O(10000*8)0.08M
-BPT<pair<  pair< pair<day,int(trainindex)>,timestamp >,int  >"pendingOrder"O(1000000*16)16M
+BPT<pair<  pair<day,int(trainindex)>,order  >"pendingOrder"O(1000000*28)28M
 BPT<int(userindex),int(orderindex)>"orderindex"O(1000000*8)8M
-filer<order>"orderdata"O(1000000*20)20M
+filer<order_detailed>"orderdata"O(1000000*124)124M
 BPT<stationName,leaveTrain>"leavetrain"O(10000*100*36)36M
 BPT<stationName,arriveTrain>"arrivetrain"O(10000*100*36)36M
 

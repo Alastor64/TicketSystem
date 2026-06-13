@@ -26,6 +26,7 @@ class LeaveTrain {
   public:
     int beginDay, endDay; // 不是始发站的！
     int trainIndex, subprice, leaveTime;
+    int pos;
     bool operator<(const LeaveTrain &x) const;
     bool operator>(const LeaveTrain &x) const;
     bool operator<=(const LeaveTrain &x) const;
@@ -36,6 +37,7 @@ class LeaveTrain {
 class ArriveTrain {
   public:
     int trainIndex, subprice, arriveTime;
+    int pos;
     bool operator<(const ArriveTrain &x) const;
     bool operator>(const ArriveTrain &x) const;
     bool operator<=(const ArriveTrain &x) const;
@@ -51,15 +53,15 @@ template <int maxlen> class is_arraystring<arraystring<maxlen>> {
   public:
     constexpr static bool value = true;
 };
-template <typename T> class is_integral_pointer {
-  public:
-    constexpr static bool value = false;
-};
-template <typename T> class is_integral_pointer<T *> {
-  public:
-    constexpr static bool value = std::is_integral_v<T>;
-};
-template <typename T> void split(T &a, const string &s) {
+// template <typename T> class is_integral_pointer {
+//   public:
+//     constexpr static bool value = false;
+// };
+// template <typename T> class is_integral<T> {
+//   public:
+//     constexpr static bool value = std::is_integral_v<T>;
+// };
+template <typename T> void split(T a[], const string &s) {
     if (s == "_") {
         return;
     }
@@ -71,10 +73,12 @@ template <typename T> void split(T &a, const string &s) {
     }
     for (int I = 0; i < s.length(); I++) {
         // cout << i << "zz" << j << endl;
-        if constexpr (is_integral_pointer<T>::value) {
+        if constexpr (std::is_integral<T>::value) {
+            // cout << "get int" << "\n";
             a[I] = stoi(s.substr(i, j - i));
         }
         if constexpr (is_arraystring<T>::value) {
+            // cout << "get str\n";
             a[I] = s.substr(i, j - i);
         }
         i = j + 1;
@@ -107,3 +111,4 @@ extern BPT<pair<StationName, LeaveTrain>> *leaveTrain;
 extern BPT<pair<StationName, ArriveTrain>> *arriveTrain;
 
 extern int buySeatNum;
+extern int maxPairedTrain;

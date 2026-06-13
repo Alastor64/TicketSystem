@@ -78,6 +78,10 @@ template <typename T, int headSize = 0> class Filer {
         fs.seekg(index);
         fileRead(fs, x);
     }
+    template <typename U> void halfread(int index, U &x) {
+        fs.seekg(index);
+        fileRead(fs, x);
+    }
     void pop(int index) {
         fs.seekp(index);
         fileWrite(fs, last);
