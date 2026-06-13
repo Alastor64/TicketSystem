@@ -14,7 +14,7 @@ pii pretest::hash(const char *s) {
 void pretest::main() {
     int n;
     cin >> n;
-    BPT<phi, 101> b("zz");
+    BPT<phi, 5> b("zz");
     char s1[200], s2[200];
     int x;
     while (n--) {
