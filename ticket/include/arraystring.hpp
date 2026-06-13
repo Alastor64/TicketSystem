@@ -7,7 +7,7 @@ template <int maxlen> class arraystring {
         s[0] = '\0';
         len = 0;
     }
-    arraystring(char *_s) {
+    arraystring(char const *_s) {
         len = 0;
         while (_s[len]) {
             s[len] = _s[len];

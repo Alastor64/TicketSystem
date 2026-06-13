@@ -1,12 +1,6 @@
-#include "command.hpp"
+#include "pretest.hpp"
+using namespace std;
 int main() {
-    init();
-    try {
-        cmd();
-    } catch (string s) {
-        cout << s << endl;
-    } catch (const char *s) {
-        cout << s << endl;
-    }
+    pretest::main();
     return 0;
 }

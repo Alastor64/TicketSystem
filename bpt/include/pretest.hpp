@@ -4,8 +4,7 @@
 namespace pretest {
 
 typedef std::pair<pii, int> phi;
-template <int degree = getDegree<phi>()>
-void print(BPT<phi, degree> &b, pii x) {
+template <int degree> void print(BPT<phi, degree> &b, pii x) {
     int l = b.lower_bound(phi(x, INT_MINIMUN));
     if (l == b.END || b.Gtmp.a[l].first != x) {
         cout << "null" << endl;

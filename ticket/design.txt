@@ -1,8 +1,8 @@
 外存：
-bpt<username,index>"userIndex"
+bpt<username,index>"userIndex"O(10000*24)0.24M
 #bpt<username,privilege>"userPrivilege"
 //多一次寻址，但是degree大了
-filer<class user>"userData"
+filer<class user>"userData"O(10000*124)1.24M
 class user
 	arraystring<21> username ,<31>password,<5*cn+1>name,<31>mailAddr
 	int privilege
@@ -10,28 +10,31 @@ const cn=3 (UTF-8)
 
 class train
 class order
-	int begin,end,num,index;
-class order_detailed
+	int begin,end,num,trainindex,status;
+#class order_detailed
 	int status;
 	trainName trainID;
 	stationName begin,end;
 	int leaveTime,arriveTime;
 	int price;
 	int num;
-class passTrain
-	int d1,d2,trainindex,leaveTime,seatIndex,sumprice,preprice,subprice,stationpos;
-	TrainID trainID
+class leaveTrain
+	int beginday,endday,trainIndex,leaveTime,subprice;
+	<>==以trainindex为准
+class arriveTrain
+	int trainIndex,arriveTime,subprice;
 
-filer<class train>"trainData"
-BPT<trainID,int>"trainIndex"
-BPT<trainID,int>"releasedTrainIndex"
-BPT<pair<pair<day,int(trainIndex)>,int>>"seatIndex"
-filer<int[100]>"seatData"
-BPT<pair<int,int>>"releasedSeatNum";
-BPT<pair<  pair< pair<day,int(trainindex)>,timestamp >,request  >"pendingOrder"
-BPT<int(userindex),int(requestindex)>"orderindex"
-filer<order_detailed>"orderdata"
-BPT<stationName,passTrain>"passtrain"
+filer<class train>"trainData"O(10000*4848)48.48M
+BPT<trainID,int>"trainIndex"O(10000*32)0.32M
+BPT<trainID,int>"releasedTrainIndex"O(10000*32)0.32M
+BPT<pair<pair<day,int(trainIndex)>,int>>"seatIndex"O(1000000*12)12M
+filer<int[100]>"seatData"O(1000000*400)400M
+BPT<pair<int(trainIndex),int(seatNum)>>"releasedSeatNum";O(10000*8)0.08M
+BPT<pair<  pair< pair<day,int(trainindex)>,timestamp >,int  >"pendingOrder"O(1000000*16)16M
+BPT<int(userindex),int(orderindex)>"orderindex"O(1000000*8)8M
+filer<order>"orderdata"O(1000000*20)20M
+BPT<stationName,leaveTrain>"leavetrain"O(10000*100*36)36M
+BPT<stationName,arriveTrain>"arrivetrain"O(10000*100*36)36M
 
 
 

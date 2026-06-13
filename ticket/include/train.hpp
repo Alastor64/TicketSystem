@@ -22,6 +22,27 @@ class Train {
     Train();
     void load(Command &c, int d1, int d2);
 };
+class LeaveTrain {
+  public:
+    int beginDay, endDay; // 不是始发站的！
+    int trainIndex, subprice, leaveTime;
+    bool operator<(const LeaveTrain &x) const;
+    bool operator>(const LeaveTrain &x) const;
+    bool operator<=(const LeaveTrain &x) const;
+    bool operator>=(const LeaveTrain &x) const;
+    bool operator==(const LeaveTrain &x) const;
+    bool operator!=(const LeaveTrain &x) const;
+};
+class ArriveTrain {
+  public:
+    int trainIndex, subprice, arriveTime;
+    bool operator<(const ArriveTrain &x) const;
+    bool operator>(const ArriveTrain &x) const;
+    bool operator<=(const ArriveTrain &x) const;
+    bool operator>=(const ArriveTrain &x) const;
+    bool operator==(const ArriveTrain &x) const;
+    bool operator!=(const ArriveTrain &x) const;
+};
 template <typename T> class is_arraystring {
   public:
     constexpr static bool value = false;
@@ -42,9 +63,14 @@ template <typename T> void split(T &a, const string &s) {
     if (s == "_") {
         return;
     }
+    // cout << s << endl;
     int i = 0;
-    int j = s.find_first_of('|');
+    int j = s.find_first_of('|', 0);
+    if (j < 0) {
+        j = s.length();
+    }
     for (int I = 0; i < s.length(); I++) {
+        // cout << i << "zz" << j << endl;
         if constexpr (is_integral_pointer<T>::value) {
             a[I] = stoi(s.substr(i, j - i));
         }
@@ -53,6 +79,9 @@ template <typename T> void split(T &a, const string &s) {
         }
         i = j + 1;
         j = s.find_first_of('|', i);
+        if (j < 0) {
+            j = s.length();
+        }
     }
 }
 int date_to_day(const string &s);
@@ -63,9 +92,18 @@ void add_train(Command &c);
 void delete_train(Command &c);
 void release_train(Command &c);
 void query_train(Command &c);
+void query_ticket(Command &c);
+void query_transfer(Command &c);
+void buy_ticket(Command &c);
+void query_order(Command &c);
+void refund_ticket(Command &c);
 extern Filer<Train> *trainData;
 extern BPT<pair<TrainID, int>> *trainIndex;
 extern BPT<int> *releasedTrainIndex;
 extern Filer<int[100]> *seatData;
 extern BPT<pair<pair<int, int>, int>> *seatIndex;
 extern BPT<pair<int, int>> *releasedSeatNum;
+extern BPT<pair<StationName, LeaveTrain>> *leaveTrain;
+extern BPT<pair<StationName, ArriveTrain>> *arriveTrain;
+
+extern int buySeatNum;

@@ -291,6 +291,20 @@ template <typename T, int degree = getDegree<T>()> class BPT {
         }
         return 0;
     }
+    int Gpos;
+    T &Gvalue() { return Gtmp.a[Gpos]; }
+    void plusGpos() {
+        Gpos++;
+        if (Gpos >= Gtmp.size) {
+            if (Gtmp.size) {
+                Gpos = 0;
+                data.read(Gtmp.next, Gtmp);
+            } else {
+                Gpos = END;
+            }
+        }
+    }
+    bool GposInvalid() { return Gpos == END; }
 };
 
 template <typename Key, typename Value, int degree>

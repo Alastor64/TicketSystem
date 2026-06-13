@@ -10,6 +10,8 @@ BPT<int> *releasedTrainIndex;
 Filer<int[100]> *seatData;
 BPT<pair<pair<int, int>, int>> *seatIndex;
 BPT<pair<int, int>> *releasedSeatNum;
+BPT<pair<StationName, LeaveTrain>> *leaveTrain;
+BPT<pair<StationName, ArriveTrain>> *arriveTrain;
 int date_to_day(const string &s) { // s=mm-dd
     int m = s[1] - '6';
     if (m < 0 || m > 2)
@@ -60,6 +62,7 @@ void Train::load(Command &c, int d1, int d2) {
     trainID = c['i'];
     stationNum = stoi(c['n']);
     seatNum = stoi(c['m']);
+    // cout << "zz" << endl;
     split(stations, c['s']);
     split(prices, c['p']);
     int startTime = time_to_minute(c['x']);
@@ -78,7 +81,9 @@ void Train::load(Command &c, int d1, int d2) {
     type = c['y'].front();
 }
 void add_train(Command &c) {
-    decltype(get_BPT_T(*trainIndex)) tmp(c['i'], INT_MINIMUN);
+    static decltype(get_BPT_T(*trainIndex)) tmp;
+    tmp.first = c['i'];
+    tmp.second = INT_MINIMUN;
     if (BPTValue(*trainIndex, tmp)) {
         cout << -1 << endl;
         return;
@@ -96,7 +101,9 @@ void add_train(Command &c) {
     cout << 0 << endl;
 }
 void delete_train(Command &c) {
-    decltype(get_BPT_T(*trainIndex)) tmp(c['i'], INT_MINIMUN);
+    static decltype(get_BPT_T(*trainIndex)) tmp;
+    tmp.first = c['i'];
+    tmp.second = INT_MINIMUN;
     if (!BPTValue(*trainIndex, tmp)) {
         cout << -1 << endl;
         return;
@@ -112,7 +119,9 @@ void delete_train(Command &c) {
     cout << 0 << endl;
 }
 void release_train(Command &c) {
-    decltype(get_BPT_T(*trainIndex)) tmp(c['i'], INT_MINIMUN);
+    static decltype(get_BPT_T(*trainIndex)) tmp;
+    tmp.first = c['i'];
+    tmp.second = INT_MINIMUN;
     if (!BPTValue(*trainIndex, tmp)) {
         cout << -1 << endl;
         return;
@@ -121,7 +130,25 @@ void release_train(Command &c) {
     trainData->read(tmp.second, t);
     releasedTrainIndex->insert(tmp.second);
     releasedSeatNum->insert(pair<int, int>(tmp.second, t.seatNum));
-
+    static LeaveTrain lp;
+    static ArriveTrain ap;
+    lp.trainIndex = ap.trainIndex = tmp.second;
+    int sp = 0;
+    for (int i = 0; i < t.stationNum - 1; i++) {
+        sp += t.prices[i];
+    }
+    for (int i = 0; i < t.stationNum - 1; i++) {
+        lp.leaveTime = t.leaveTime[i];
+        lp.beginDay = t.beginDay + t.leaveTime[i] / (60 * 24);
+        lp.endDay = t.endDay + t.leaveTime[i] / (60 * 24);
+        lp.subprice = sp;
+        sp -= t.prices[i];
+        ap.arriveTime = t.arriveTime[i];
+        ap.subprice = sp;
+        leaveTrain->insert(pair<StationName, LeaveTrain>(t.stations[i], lp));
+        arriveTrain->insert(
+            pair<StationName, ArriveTrain>(t.stations[i + 1], ap));
+    }
     cout << 0 << endl;
 }
 void query_train(Command &c) {
@@ -176,3 +203,88 @@ void query_train(Command &c) {
     }
     cout << endl;
 }
+void query_ticket(Command &c) {
+    static decltype(get_BPT_T(*leaveTrain)) tmp1;
+    static decltype(get_BPT_T(*arriveTrain)) tmp2;
+    tmp1.first = c['s'];
+    tmp1.second.trainIndex = INT_MINIMUN;
+    tmp2.first = c['t'];
+    tmp2.first = c['t'];
+    leaveTrain->Gpos = leaveTrain->lower_bound(tmp1);
+    arriveTrain->Gpos = arriveTrain->lower_bound(tmp2);
+    int cnt = 0;
+    int d = stoi(c['d']);
+    while (!(leaveTrain->GposInvalid() || arriveTrain->GposInvalid()) &&
+           leaveTrain->Gvalue().first == tmp1.first &&
+           arriveTrain->Gvalue().first == tmp2.first) {
+        if (leaveTrain->Gvalue().second.trainIndex >
+            arriveTrain->Gvalue().second.trainIndex) {
+            arriveTrain->plusGpos();
+            continue;
+        }
+        if (leaveTrain->Gvalue().second.trainIndex <
+            arriveTrain->Gvalue().second.trainIndex) {
+            leaveTrain->plusGpos();
+            continue;
+        }
+        if (d >= leaveTrain->Gvalue().second.beginDay &&
+            d <= leaveTrain->Gvalue().second.endDay) {
+            cnt++;
+        }
+        leaveTrain->plusGpos();
+        arriveTrain->plusGpos();
+    }
+}
+void buy_ticket(Command &c) {
+    // decltype(get_BPT_T(*trainIndex)) tmp1(c['i'], INT_MINIMUN);
+    // if (!BPTValue(*trainIndex, tmp1)) {
+    //     cout << -1 << endl;
+    // }
+    // if (!BPTContain(*releasedTrainIndex, tmp1.second)) {
+    //     cout << -1 << endl;
+    // }
+    // decltype(get_BPT_T(*seatIndex)) tmp2(
+    //     pair<int, int>(date_to_day(c['d']), tmp1.second), INT_MINIMUN);
+    // if (!BPTValue(*seatIndex, tmp2)) {
+    //     tmp2.second = buySeatNum++;
+    //     seatIndex->insert(tmp2);
+    // }
+    // cout << 0 << endl;
+}
+bool LeaveTrain::operator<(const LeaveTrain &x) const {
+    return trainIndex < x.trainIndex;
+}
+bool LeaveTrain::operator>(const LeaveTrain &x) const {
+    return trainIndex > x.trainIndex;
+}
+bool LeaveTrain::operator<=(const LeaveTrain &x) const {
+    return trainIndex <= x.trainIndex;
+}
+bool LeaveTrain::operator>=(const LeaveTrain &x) const {
+    return trainIndex >= x.trainIndex;
+}
+bool LeaveTrain::operator==(const LeaveTrain &x) const {
+    return trainIndex == x.trainIndex;
+}
+bool LeaveTrain::operator!=(const LeaveTrain &x) const {
+    return trainIndex != x.trainIndex;
+}
+bool ArriveTrain::operator<(const ArriveTrain &x) const {
+    return trainIndex < x.trainIndex;
+}
+bool ArriveTrain::operator>(const ArriveTrain &x) const {
+    return trainIndex > x.trainIndex;
+}
+bool ArriveTrain::operator<=(const ArriveTrain &x) const {
+    return trainIndex <= x.trainIndex;
+}
+bool ArriveTrain::operator>=(const ArriveTrain &x) const {
+    return trainIndex >= x.trainIndex;
+}
+bool ArriveTrain::operator==(const ArriveTrain &x) const {
+    return trainIndex == x.trainIndex;
+}
+bool ArriveTrain::operator!=(const ArriveTrain &x) const {
+    return trainIndex != x.trainIndex;
+}
+int buySeatNum;

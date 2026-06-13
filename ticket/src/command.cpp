@@ -15,6 +15,8 @@ void init() {
     easy_new(seatData, "seatData");
     easy_new(seatIndex, "seatIndex");
     easy_new(releasedSeatNum, "releasedSeatNum");
+    easy_new(leaveTrain, "leaveTrain");
+    easy_new(arriveTrain, "arriveTrain");
     user_init();
 }
 void clean() {
@@ -97,28 +99,87 @@ void cmd() {
         // }
         // cout << endl;
         if (type == "add_user") {
+            add_user_cnt++;
             add_user(tmp);
         } else if (type == "login") {
+            login_cnt++;
             login(tmp);
         } else if (type == "logout") {
+            logout_cnt++;
             logout(tmp);
         } else if (type == "query_profile") {
+            query_profile_cnt++;
             query_profile(tmp);
         } else if (type == "modify_profile") {
+            modify_profile_cnt++;
             modify_profile(tmp);
         } else if (type == "exit") {
+            exit_cnt++;
             exit();
             break;
         } else if (type == "clean") {
+            clean_cnt++;
             clean();
         } else if (type == "query_train") {
+            query_train_cnt++;
             query_train(tmp);
         } else if (type == "delete_train") {
+            delete_train_cnt++;
             delete_train(tmp);
         } else if (type == "add_train") {
+            add_train_cnt++;
             add_train(tmp);
+        } else if (type == "release_train") {
+            release_train_cnt++;
+            release_train(tmp);
+        } else if (type == "buy_ticket") {
+            buy_ticket_cnt++;
+            buy_ticket(tmp);
+        } else if (type == "query_ticket") {
+            query_ticket_cnt++;
+        } else if (type == "query_order") {
+            query_order_cnt++;
+        } else if (type == "refund_ticket") {
+            refund_ticket_cnt++;
+        } else if (type == "query_transfer") {
+            query_transfer_cnt++;
         } else {
             throw "invalid <cmd>:" + type;
         }
     }
 }
+void command_cnt() {
+    cout << "\n\n===================\n\n";
+    cout << "add_user_cnt " << add_user_cnt << "\n";
+    cout << "login_cnt " << login_cnt << "\n";
+    cout << "logout_cnt " << logout_cnt << "\n";
+    cout << "query_profile_cnt " << query_profile_cnt << "\n";
+    cout << "modify_profile_cnt " << modify_profile_cnt << "\n";
+    cout << "add_train_cnt " << add_train_cnt << "\n";
+    cout << "delete_train_cnt " << delete_train_cnt << "\n";
+    cout << "release_train_cnt " << release_train_cnt << "\n";
+    cout << "query_train_cnt " << query_train_cnt << "\n";
+    cout << "query_ticket_cnt " << query_ticket_cnt << "\n";
+    cout << "query_transfer_cnt " << query_transfer_cnt << "\n";
+    cout << "buy_ticket_cnt " << buy_ticket_cnt << "\n";
+    cout << "query_order_cnt " << query_order_cnt << "\n";
+    cout << "refund_ticket_cnt " << refund_ticket_cnt << "\n";
+    cout << "exit_cnt " << exit_cnt << "\n";
+    cout << "clean_cnt " << clean_cnt << "\n";
+}
+int add_user_cnt;
+int login_cnt;
+int logout_cnt;
+int query_profile_cnt;
+int modify_profile_cnt;
+int add_train_cnt;
+int delete_train_cnt;
+int release_train_cnt;
+int query_train_cnt;
+int query_ticket_cnt;
+int query_transfer_cnt;
+int buy_ticket_cnt;
+int query_order_cnt;
+int refund_ticket_cnt;
+int exit_cnt;
+int clean_cnt;
