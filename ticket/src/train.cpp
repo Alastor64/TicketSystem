@@ -783,7 +783,7 @@ void query_transfer(Command &c) {
                         tmpa.price1 = prep;
                         tmpa.price2 = subp;
                         tmpa.time = (tmpa.day2 - day1) * DAY_MINUTES +
-                                    tt[j].arriveTime[endPos[j]] -
+                                    tt[j].arriveTime[endPos[j] - 1] -
                                     ft[i].leaveTime[beginPos[i]];
                         tmpa.trainPos1 = i;
                         tmpa.trainPos2 = j;
@@ -826,6 +826,7 @@ void query_transfer(Command &c) {
                   ans.price2);
         order_detailed::print(cout, od);
         cout << endl;
+        // cout << "time=" << ans.time << endl;
     }
 }
 bool LeaveTrain::operator<(const LeaveTrain &x) const {
