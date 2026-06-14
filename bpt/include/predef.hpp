@@ -19,3 +19,13 @@ using std::pair;
 using std::stoi;
 using std::string;
 using std::filesystem::directory_iterator;
+template <typename T> class ComparableBase {
+  public:
+    friend bool operator>(const T &a, const T &b) { return b < a; }
+    friend bool operator>=(const T &a, const T &b) { return !(a < b); }
+    friend bool operator<=(const T &a, const T &b) { return !(b < a); }
+    friend bool operator==(const T &a, const T &b) {
+        return !(b < a) && !(a < b);
+    }
+    friend bool operator!=(const T &a, const T &b) { return b < a || a < b; }
+};

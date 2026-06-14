@@ -443,8 +443,8 @@ void buy_ticket(Command &c) {
         if (mn < n) {
             if (c['q'] == "true") {
                 od.status = STATUS::PENDING;
-                int oindex = orderData->push(od);
                 mkod::mk(od, c.timestamp, t, tmp1.second, pos1, pos2, n, sp, d);
+                int oindex = orderData->push(od);
                 orderIndex->insert(pair<int, pair<int, int>>(
                     tmpu.second, pair<int, int>(-c.timestamp, oindex)));
                 tmpo.first.first = od.day;
@@ -507,7 +507,7 @@ void query_order(Command &c) {
 }
 void refund_ticket(Command &c) {
     if (loggeduser.find(c['u']) == loggeduser.end()) {
-        cout << "tt";
+        // cout << "tt";
         cout << -1 << endl;
         return;
     }
@@ -528,7 +528,7 @@ void refund_ticket(Command &c) {
         n = stoi(c['n']);
     }
     if (n < 1) {
-        cout << "bb";
+        // cout << "bb";
         cout << -1 << endl;
         return;
     }
@@ -541,14 +541,14 @@ void refund_ticket(Command &c) {
         orderIndex->plusGpos();
     }
     if (n) {
-        cout << "zz";
+        // cout << "zz";
         cout << -1 << endl;
         return;
     }
     static order_detailed od;
     orderData->read(orderIndex->Gvalue().second.second, od);
     if (od.status == STATUS::REFUNDED) {
-        cout << "!!";
+        // cout << "!!";
         cout << -1 << endl;
         return;
     }
