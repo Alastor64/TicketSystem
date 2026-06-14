@@ -1,7 +1,6 @@
 #include "order.hpp"
 #include "predef.hpp"
 #include "train.hpp"
-#include <iostream>
 bool order::operator<(const order &x) const { return timestamp < x.timestamp; }
 bool order::operator>(const order &x) const { return timestamp > x.timestamp; }
 bool order::operator==(const order &x) const {
@@ -28,6 +27,10 @@ ostream &operator<<(ostream &output, const order_detailed &od) {
         output << "refunded";
     }
     output << "] ";
+    return order_detailed::print(output, od);
+}
+ostream &order_detailed::print(ostream &output, const order_detailed &od) {
+
     output << od.trainID << " ";
     output << od.begin << " ";
     output << day_to_date(od.day + od.leaveTime / DAY_MINUTES) << " ";

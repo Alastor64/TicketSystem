@@ -7,9 +7,6 @@
 #include "order.hpp"
 #include "predef.hpp"
 #include "user.hpp"
-#include <complex>
-#include <string>
-#include <utility>
 Filer<Train> *trainData;
 BPT<pair<TrainID, int>> *trainIndex;
 BPT<int> *releasedTrainIndex;
@@ -616,7 +613,221 @@ void refund_ticket(Command &c) {
     seatData->update(tmp4.second, sn);
     cout << 0 << endl;
 }
-void query_transfer(Command &c) { cout << 0 << endl; }
+void query_transfer(Command &c) {
+    // cout << 0 << endl;
+    // return;
+    if (c['s'] == c['t']) {
+        throw "meaningless ticket";
+    }
+    static decltype(get_BPT_T(*leaveTrain)) tmp1;
+    static decltype(get_BPT_T(*arriveTrain)) tmp2;
+    tmp1.first = c['s'];
+    tmp1.second.trainIndex = INT_MINIMUN;
+    tmp2.first = c['t'];
+    tmp2.first = c['t'];
+    leaveTrain->Gpos = leaveTrain->lower_bound(tmp1);
+    arriveTrain->Gpos = arriveTrain->lower_bound(tmp2);
+    constexpr int maxpt = 1005;
+    static Train ft[maxpt], tt[maxpt];
+    static int day1[maxpt], beginPos[maxpt], endPos[maxpt], preprice[maxpt];
+    // static LeaveTrain fl[maxpt];
+    static int fi[maxpt], ti[maxpt];
+    int fn = 0, tn = 0;
+    int d = date_to_day(c['d']); // 离开<from>日
+    while (!leaveTrain->GposInvalid() &&
+           leaveTrain->Gvalue().first == tmp1.first) {
+        fi[fn] = leaveTrain->Gvalue().second.trainIndex;
+        trainData->read(fi[fn], ft[fn]);
+        beginPos[fn] = leaveTrain->Gvalue().second.pos;
+        day1[fn] = d - ft[fn].leaveTime[beginPos[fn]] / DAY_MINUTES;
+        fn++;
+        if (fn >= maxpt) {
+            throw "too much f";
+        }
+        leaveTrain->plusGpos();
+    }
+    maxPassTrain = max(maxPassTrain, fn);
+    while (!arriveTrain->GposInvalid() &&
+           arriveTrain->Gvalue().first == tmp2.first) {
+        ti[tn] = arriveTrain->Gvalue().second.trainIndex;
+        trainData->read(ti[tn], tt[tn]);
+        endPos[tn] = arriveTrain->Gvalue().second.pos;
+        preprice[tn] = 0;
+        for (int i = 0; i < endPos[tn]; i++) {
+            preprice[tn] += tt[tn].prices[i];
+        }
+        tn++;
+        if (tn >= maxpt) {
+            throw "too much t";
+        }
+        arriveTrain->plusGpos();
+    }
+    maxPassTrain = max(maxPassTrain, tn);
+    class Ans {
+      public:
+        // int trainIndex1;
+        // int trainIndex2;
+        int trainPos1;
+        int trainPos2;
+        int middlePos1; // mid 在ft[i]中位置
+        int middlePos2;
+        int price;
+        int price1;
+        int price2;
+        int day2;
+        int time;
+        static bool cmp(const Ans &a, const Ans &b, Train t1[], Train t2[]) {
+            if (t1[a.trainPos1].trainID < t2[b.trainPos1].trainID)
+                return 1;
+            if (t1[a.trainPos1].trainID > t2[b.trainPos1].trainID)
+                return 0;
+            if (t1[a.trainPos2].trainID < t2[b.trainPos2].trainID)
+                return 1;
+            if (t1[a.trainPos2].trainID > t2[b.trainPos2].trainID)
+                return 0;
+            return 0;
+        }
+        static bool cmpt(const Ans &a, const Ans &b, Train t1[], Train t2[]) {
+            if (a.time < b.time)
+                return 1;
+            if (a.time > b.time)
+                return 0;
+            if (a.price < b.price)
+                return 1;
+            if (a.price > b.price)
+                return 0;
+            return cmp(a, b, t1, t2);
+        }
+        static bool cmpp(const Ans &a, const Ans &b, Train t1[], Train t2[]) {
+            if (a.price < b.price)
+                return 1;
+            if (a.price > b.price)
+                return 0;
+            if (a.time < b.time)
+                return 1;
+            if (a.time > b.time)
+                return 0;
+            return cmp(a, b, t1, t2);
+        }
+        static int getSeat(Train &t, int trainIndex, int day, int pos1,
+                           int pos2) {
+            static decltype(get_BPT_T(*seatIndex)) tmp;
+            tmp.first.first = day;
+            tmp.first.second = trainIndex;
+            tmp.second = INT_MINIMUN;
+            if (!BPTValue(*seatIndex, tmp)) {
+                return t.seatNum;
+            }
+            static int sn[100];
+            seatData->read(tmp.second, sn);
+            int mn = sn[pos1];
+            for (int i = pos1 + 1; i < pos2; i++) {
+                mn = min(mn, sn[i]);
+            }
+            return mn;
+        }
+        static void mkod(order_detailed &od, int trainIndex, Train &t, int day,
+                         int pos1, int pos2, int price) {
+            od.trainID = t.trainID;
+            od.day = day;
+            od.begin = t.stations[pos1];
+            od.end = t.stations[pos2];
+            od.leaveTime = t.leaveTime[pos1];
+            od.arriveTime = t.arriveTime[pos2 - 1];
+            od.price = price;
+            od.num = getSeat(t, trainIndex, day, pos1, pos2);
+        }
+    };
+    bool fg = 1;
+    static Ans ans, tmpa;
+    for (int i = 0; i < fn; i++) {
+        int day1 = d - ft[i].leaveTime[beginPos[i]] / DAY_MINUTES;
+        if (day1 < ft[i].beginDay || day1 > ft[i].endDay) {
+            continue;
+        }
+        for (int j = 0; j < tn; j++) {
+            if (ft[i].trainID == tt[j].trainID) {
+                continue;
+            }
+            int prep = 0;
+            for (int I = beginPos[i] + 1; I < ft[i].stationNum; I++) {
+                prep += ft[i].prices[I - 1];
+                int subp = preprice[j];
+                for (int J = 0; J < endPos[j]; subp -= tt[j].prices[J], J++) {
+                    if (ft[i].stations[I] != tt[j].stations[J]) {
+                        continue;
+                    }
+                    // int I = beginPos[i] + 1, J = 0;
+                    // while (I < ft[i].stationNum && J < endPos[j]) {
+                    // if (ft[i].stations[I] < tt[j].stations[J]) {
+                    //     prep += ft[i].prices[I];
+                    //     I++;
+                    //     continue;
+                    // }
+                    // if (ft[i].stations[I] > tt[j].stations[J]) {
+                    //     subp -= tt[j].prices[J];
+                    //     J++;
+                    //     continue;
+                    // }
+                    tmpa.day2 = day1 + ft[i].arriveTime[I - 1] / DAY_MINUTES -
+                                tt[j].leaveTime[J] / DAY_MINUTES;
+                    if (ft[i].arriveTime[I - 1] % DAY_MINUTES >
+                        tt[j].leaveTime[J] % DAY_MINUTES) {
+                        tmpa.day2++;
+                    }
+                    if (tmpa.day2 <= tt[j].endDay) {
+                        tmpa.day2 = max(tmpa.day2, tt[j].beginDay);
+                        tmpa.middlePos1 = I;
+                        tmpa.middlePos2 = J;
+                        tmpa.price = prep + subp;
+                        tmpa.price1 = prep;
+                        tmpa.price2 = subp;
+                        tmpa.time = (tmpa.day2 - day1) * DAY_MINUTES +
+                                    tt[j].arriveTime[endPos[j]] -
+                                    ft[i].leaveTime[beginPos[i]];
+                        tmpa.trainPos1 = i;
+                        tmpa.trainPos2 = j;
+                        // cout << ft[i].stations[I] << "," << tt[j].stations[J]
+                        //      << endl;
+                        if (fg) {
+                            fg = 0;
+                            ans = tmpa;
+                        } else {
+                            if (c['p'] == "cost") {
+                                if (Ans::cmpp(tmpa, ans, ft, tt)) {
+                                    ans = tmpa;
+                                }
+                            } else {
+                                if (Ans::cmpt(tmpa, ans, ft, tt)) {
+                                    ans = tmpa;
+                                }
+                            }
+                        }
+                    }
+                }
+                // prep += ft[i].prices[I];
+                // I++;
+                // subp -= tt[j].prices[J];
+                // J++;
+            }
+        }
+    }
+    if (fg) {
+        cout << 0 << endl;
+    } else {
+        static order_detailed od;
+        int i = ans.trainPos1, j = ans.trainPos2;
+        Ans::mkod(od, fi[i], ft[i],
+                  d - ft[i].leaveTime[beginPos[i]] / DAY_MINUTES, beginPos[i],
+                  ans.middlePos1, ans.price1);
+        order_detailed::print(cout, od);
+        cout << endl;
+        Ans::mkod(od, ti[j], tt[j], ans.day2, ans.middlePos2, endPos[j],
+                  ans.price2);
+        order_detailed::print(cout, od);
+        cout << endl;
+    }
+}
 bool LeaveTrain::operator<(const LeaveTrain &x) const {
     return trainIndex < x.trainIndex;
 }
@@ -655,3 +866,4 @@ bool ArriveTrain::operator!=(const ArriveTrain &x) const {
 }
 int buySeatNum;
 int maxPairedTrain;
+int maxPassTrain;

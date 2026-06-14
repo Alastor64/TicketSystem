@@ -2,7 +2,6 @@
 #include "BPT.hpp"
 #include "Filer.hpp"
 #include "train.hpp"
-#include <ostream>
 class order {
   public:
     int begin;
@@ -35,6 +34,7 @@ class order_detailed {
     int num;
     int timestamp;
     friend ostream &operator<<(ostream &output, const order_detailed &od);
+    static ostream &print(ostream &output, const order_detailed &od);
 };
 extern BPT<pair<int, pair<int, int>>> *orderIndex;
 extern BPT<pair<pair<int, int>, order>> *pendingOrder;

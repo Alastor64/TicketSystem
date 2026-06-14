@@ -112,3 +112,4 @@ extern BPT<pair<StationName, ArriveTrain>> *arriveTrain;
 
 extern int buySeatNum;
 extern int maxPairedTrain;
+extern int maxPassTrain;

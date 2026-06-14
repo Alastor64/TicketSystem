@@ -17,5 +17,6 @@ int main() {
     // command_cnt();
     // cout << "buySeatNum:" << buySeatNum << endl;
     // cout << "maxPairedTrain" << maxPairedTrain << endl;
+    // cout << "maxPassTrain" << maxPassTrain << endl;
     return 0;
 }
