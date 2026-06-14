@@ -627,7 +627,7 @@ void query_transfer(Command &c) {
     tmp2.first = c['t'];
     leaveTrain->Gpos = leaveTrain->lower_bound(tmp1);
     arriveTrain->Gpos = arriveTrain->lower_bound(tmp2);
-    constexpr int maxpt = 1005;
+    constexpr int maxpt = 2005;
     static Train ft[maxpt], tt[maxpt];
     static int day1[maxpt], beginPos[maxpt], endPos[maxpt], preprice[maxpt];
     // static LeaveTrain fl[maxpt];
