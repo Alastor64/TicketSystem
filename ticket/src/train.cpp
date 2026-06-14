@@ -7,6 +7,9 @@
 #include "order.hpp"
 #include "predef.hpp"
 #include "user.hpp"
+#include <complex>
+#include <string>
+#include <utility>
 Filer<Train> *trainData;
 BPT<pair<TrainID, int>> *trainIndex;
 BPT<int> *releasedTrainIndex;
@@ -196,7 +199,7 @@ void query_train(Command &c) {
             cout << "xx-xx xx:xx ";
         } else {
             cout << day_to_date(d + t.leaveTime[i] / (60 * 24)) << " "
-                 << minute_to_time(t.leaveTime[i] / (60 * 24)) << " ";
+                 << minute_to_time(t.leaveTime[i] % (60 * 24)) << " ";
         }
         if (i != 0) {
             sp += t.prices[i - 1];
@@ -241,7 +244,7 @@ void query_ticket(Command &c) {
     // }
     // cout << "\n";
     int cnt = 0;
-    int d = date_to_day(c['d']);
+    int d = date_to_day(c['d']); // 从<from>离开日
     class PairedTrain {
       public:
         TrainID trainID;
@@ -298,7 +301,7 @@ void query_ticket(Command &c) {
     static decltype(get_BPT_T(*releasedSeatNum)) tmp4;
     static int sn[100];
     if (cnt) {
-        if (c['p'] == "time") {
+        if (c['p'] == "time" || c['p'].empty()) {
             sort(0, cnt - 1, ans, bans, PairedTrain::cmpt);
         } else {
             sort(0, cnt - 1, ans, bans, PairedTrain::cmpp);
@@ -306,15 +309,15 @@ void query_ticket(Command &c) {
         for (int i = 0; i < cnt; i++) {
             cout << ans[i].trainID << " ";
             cout << c['s'] << " " << c['d'] << " ";
-            cout << minute_to_time(ans[i].leaveTime % (24 * 60)) << " -> ";
+            cout << minute_to_time(ans[i].leaveTime % DAY_MINUTES) << " -> ";
             cout << c['t'] << " ";
-            cout << day_to_date(d - ans[i].leaveTime / (24 * 60) +
-                                ans[i].arriveTime / (24 * 60))
+            cout << day_to_date(d - ans[i].leaveTime / DAY_MINUTES +
+                                ans[i].arriveTime / DAY_MINUTES)
                  << " ";
-            cout << minute_to_time(ans[i].arriveTime % (24 * 60)) << " ";
+            cout << minute_to_time(ans[i].arriveTime % DAY_MINUTES) << " ";
             cout << ans[i].price << " ";
             // cout << endl;
-            tmp3.first.first = d - ans[i].leaveTime / (24 * 60);
+            tmp3.first.first = d - ans[i].leaveTime / DAY_MINUTES;
             tmp3.first.second = ans[i].trainIndex;
             tmp3.second = INT_MINIMUN;
             if (!BPTValue(*seatIndex, tmp3)) {
@@ -337,6 +340,12 @@ void buy_ticket(Command &c) {
     if (loggeduser.find(c['u']) == loggeduser.end()) {
         cout << -1 << endl;
         return;
+    }
+    static decltype(get_BPT_T(*userIndex)) tmpu;
+    tmpu.first = c['u'];
+    tmpu.second = INT_MINIMUN;
+    if (!BPTValue(*userIndex, tmpu)) {
+        throw "abab";
     }
     static decltype(get_BPT_T(*trainIndex)) tmp1;
     tmp1.first = c['i'];
@@ -370,7 +379,11 @@ void buy_ticket(Command &c) {
         cout << -1 << endl;
         return;
     }
-    int d = date_to_day(c['d']) - t.leaveTime[pos1];
+    int d = date_to_day(c['d']) - t.leaveTime[pos1] / DAY_MINUTES; // 发车日
+    if (d < t.beginDay || d > t.endDay) {
+        cout << -1 << endl;
+        return;
+    }
     static decltype(get_BPT_T(*seatIndex)) tmp2;
     tmp2.first.first = d;
     tmp2.first.second = tmp1.second;
@@ -384,8 +397,8 @@ void buy_ticket(Command &c) {
     static order_detailed od;
     class mkod { // 单纯为了复用代码
       public:
-        static void mk(order_detailed &od, Train &t, int pos1, int pos2, int n,
-                       int sp) {
+        static void mk(order_detailed &od, int tt, Train &t, int ti, int pos1,
+                       int pos2, int n, int sp, int d) {
             od.begin = t.stations[pos1];
             od.end = t.stations[pos2];
             od.leaveTime = t.leaveTime[pos1];
@@ -393,6 +406,11 @@ void buy_ticket(Command &c) {
             od.num = n;
             od.price = sp;
             od.trainID = t.trainID;
+            od.day = d;
+            od.trainIndex = ti;
+            od.beginPos = pos1;
+            od.endPos = pos2;
+            od.timestamp = tt;
         }
     };
     if (!BPTValue(*seatIndex, tmp2)) {
@@ -406,27 +424,39 @@ void buy_ticket(Command &c) {
         tmp2.second = seatData->push(sn);
         seatIndex->insert(tmp2);
         od.status = STATUS::SUCCESS;
-        mkod::mk(od, t, pos1, pos2, n, sp);
-        orderIndex->insert(pair<int, int>(tmp1.second, orderData->push(od)));
+        mkod::mk(od, c.timestamp, t, tmp1.second, pos1, pos2, n, sp, d);
+        orderIndex->insert(pair<int, pair<int, int>>(
+            tmpu.second, pair<int, int>(-c.timestamp, orderData->push(od))));
         cout << sp * n << endl;
     } else {
-        cout << "get it" << "\n";
+        // cout << "get it" << "\n";
         seatData->read(tmp2.second, sn);
-        for (int i = 0; i < t.stationNum; i++) {
-            cout << sn[i] << ",";
-        }
-        cout << "\n";
+        // for (int i = 0; i < t.stationNum; i++) {
+        //     cout << sn[i] << ",";
+        // }
+        // cout << "\n";
         int mn = sn[pos1];
         for (int i = pos1 + 1; i < pos2; i++) {
             mn = min(sn[i], mn);
         }
+        static decltype(get_BPT_T(*pendingOrder)) tmpo;
         if (mn < n) {
             if (c['q'] == "true") {
                 od.status = STATUS::PENDING;
-                mkod::mk(od, t, pos1, pos2, n, sp);
-                orderIndex->insert(
-                    pair<int, int>(tmp1.second, orderData->push(od)));
+                int oindex = orderData->push(od);
+                mkod::mk(od, c.timestamp, t, tmp1.second, pos1, pos2, n, sp, d);
+                orderIndex->insert(pair<int, pair<int, int>>(
+                    tmpu.second, pair<int, int>(-c.timestamp, oindex)));
+                tmpo.first.first = od.day;
+                tmpo.first.second = od.trainIndex;
+                tmpo.second.begin = od.beginPos;
+                tmpo.second.end = od.endPos;
+                tmpo.second.timestamp = od.timestamp;
+                tmpo.second.num = od.num;
+                tmpo.second.index = oindex;
+                pendingOrder->insert(tmpo);
                 cout << "queue" << endl;
+                return;
             } else {
                 cout << -1 << endl;
                 return;
@@ -436,9 +466,157 @@ void buy_ticket(Command &c) {
             sn[i] -= n;
         }
         seatData->update(tmp2.second, sn);
+        od.status = STATUS::SUCCESS;
+        mkod::mk(od, c.timestamp, t, tmp1.second, pos1, pos2, n, sp, d);
+        orderIndex->insert(pair<int, pair<int, int>>(
+            tmpu.second, pair<int, int>(-c.timestamp, orderData->push(od))));
         cout << sp * n << endl;
     }
 }
+void query_order(Command &c) {
+    if (loggeduser.find(c['u']) == loggeduser.end()) {
+        cout << -1 << endl;
+        return;
+    }
+    static decltype(get_BPT_T(*userIndex)) tmp1;
+    tmp1.first = c['u'];
+    tmp1.second = INT_MINIMUN;
+    if (!BPTValue(*userIndex, tmp1)) {
+        throw "unknown error in query_order";
+    }
+    static decltype(get_BPT_T(*orderIndex)) tmp2;
+    tmp2.first = tmp1.second;
+    tmp2.second = pair<int, int>(INT_MINIMUN, INT_MINIMUN);
+    orderIndex->Gpos = orderIndex->lower_bound(tmp2);
+    int cnt = 0;
+    while (!orderIndex->GposInvalid() &&
+           orderIndex->Gvalue().first == tmp1.second) {
+        cnt++;
+        orderIndex->plusGpos();
+    }
+    cout << cnt << endl;
+    orderIndex->Gpos = orderIndex->lower_bound(tmp2);
+    static order_detailed od;
+    while (!orderIndex->GposInvalid() &&
+           orderIndex->Gvalue().first == tmp1.second) {
+        int index = orderIndex->Gvalue().second.second;
+        orderData->read(index, od);
+        cout << od << endl;
+        orderIndex->plusGpos();
+    }
+}
+void refund_ticket(Command &c) {
+    if (loggeduser.find(c['u']) == loggeduser.end()) {
+        cout << "tt";
+        cout << -1 << endl;
+        return;
+    }
+    static decltype(get_BPT_T(*userIndex)) tmp1;
+    tmp1.first = c['u'];
+    tmp1.second = INT_MINIMUN;
+    if (!BPTValue(*userIndex, tmp1)) {
+        throw "unknown error in refund_ticket";
+    }
+    static decltype(get_BPT_T(*orderIndex)) tmp2;
+    tmp2.first = tmp1.second;
+    tmp2.second = pair<int, int>(INT_MINIMUN, INT_MINIMUN);
+    orderIndex->Gpos = orderIndex->lower_bound(tmp2);
+    int n;
+    if (c['n'].empty()) {
+        n = 1;
+    } else {
+        n = stoi(c['n']);
+    }
+    if (n < 1) {
+        cout << "bb";
+        cout << -1 << endl;
+        return;
+    }
+    while (!orderIndex->GposInvalid() &&
+           orderIndex->Gvalue().first == tmp1.second) {
+        n--;
+        if (!n) {
+            break;
+        }
+        orderIndex->plusGpos();
+    }
+    if (n) {
+        cout << "zz";
+        cout << -1 << endl;
+        return;
+    }
+    static order_detailed od;
+    orderData->read(orderIndex->Gvalue().second.second, od);
+    if (od.status == STATUS::REFUNDED) {
+        cout << "!!";
+        cout << -1 << endl;
+        return;
+    }
+    static decltype(get_BPT_T(*pendingOrder)) tmp3;
+    if (od.status == STATUS::PENDING) {
+        od.status = STATUS::REFUNDED;
+        orderData->update(orderIndex->Gvalue().second.second, od);
+        tmp3.first.first = od.day;
+        tmp3.first.second = od.trainIndex;
+        // tmp3.second.index = orderIndex->Gvalue().second.second;
+        // tmp3.second.begin = od.beginPos;
+        // tmp3.second.end = od.endPos;
+        // tmp3.second.num = od.num;
+        tmp3.second.timestamp = od.timestamp;
+        pendingOrder->del(tmp3);
+        cout << 0 << endl;
+        return;
+    }
+    od.status = STATUS::REFUNDED;
+    orderData->update(orderIndex->Gvalue().second.second, od);
+    static decltype(get_BPT_T(*seatIndex)) tmp4;
+    tmp4.first.first = od.day;
+    tmp4.first.second = od.trainIndex;
+    tmp4.second = INT_MINIMUN;
+    if (!BPTValue(*seatIndex, tmp4)) {
+        throw "unknown error in refund_ticket3";
+    }
+    static int sn[100];
+    seatData->read(tmp4.second, sn);
+    for (int i = od.beginPos; i < od.endPos; i++) {
+        sn[i] += od.num;
+    }
+    static decltype(get_BPT_T(*pendingOrder)) tmp5;
+    tmp5.first.first = od.day;
+    tmp5.first.second = od.trainIndex;
+    tmp5.second.timestamp = INT_MINIMUN;
+    pendingOrder->Gpos = pendingOrder->lower_bound(tmp5);
+    static int rmo[1000005];
+    int rn = 0;
+    while (!pendingOrder->GposInvalid() &&
+           pendingOrder->Gvalue().first == tmp5.first) {
+        order &o = pendingOrder->Gvalue().second;
+        int mn = sn[o.begin];
+        for (int i = o.begin + 1; i < o.end; i++) {
+            mn = min(mn, sn[i]);
+        }
+        if (mn >= o.num) {
+            orderData->read(o.index, od);
+            if (od.status != STATUS::PENDING) {
+                throw "pending error";
+            }
+            rmo[rn++] = o.timestamp;
+            for (int i = o.begin; i < o.end; i++) {
+                sn[i] -= o.num;
+            }
+            od.status = STATUS::SUCCESS;
+            orderData->update(o.index, od);
+        }
+        pendingOrder->plusGpos();
+    }
+    for (int i = 0; i < rn; i++) {
+        tmp5.second.timestamp = rmo[i];
+        pendingOrder->del(tmp5);
+    }
+    seatData->update(tmp4.second, sn);
+    cout << 0 << endl;
+}
+void query_transfer(Command &c) { cout << 0 << endl; }
 bool LeaveTrain::operator<(const LeaveTrain &x) const {
     return trainIndex < x.trainIndex;
 }

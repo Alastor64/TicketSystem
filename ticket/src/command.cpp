@@ -157,10 +157,13 @@ void cmd() {
             query_ticket(tmp);
         } else if (type == "query_order") {
             query_order_cnt++;
+            query_order(tmp);
         } else if (type == "refund_ticket") {
             refund_ticket_cnt++;
+            refund_ticket(tmp);
         } else if (type == "query_transfer") {
             query_transfer_cnt++;
+            query_transfer(tmp);
         } else {
             throw "invalid <cmd>:" + type;
         }

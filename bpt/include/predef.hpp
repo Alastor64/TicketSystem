@@ -9,6 +9,7 @@ using std::cin;
 using std::cout;
 // using std::endl;
 constexpr char endl = '\n';
+constexpr int DAY_MINUTES = 24 * 60;
 using std::getline;
 using std::istream;
 using std::max;
