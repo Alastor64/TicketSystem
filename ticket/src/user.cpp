@@ -5,37 +5,36 @@
 #include "map.hpp"
 #include "predef.hpp"
 #include <utility>
-// #define need_userprivilege
 User::User() {}
 User::User(const Username &u, const Password &p, const Name &n,
            const MailAddr &m, const int &g)
     : username(u), password(p), name(n), mailAddr(m), privilege(g) {}
 Filer<User, 1> *userData;
 BPT<pair<Username, int>> *userIndex;
-#ifdef need_userprivilege
-BPT<pair<Username, int>> *userprivilege;
-#endif
 map<Username, int> loggeduser;
 bool firstuser;
 void user_init() { firstuser = userData->blank(); }
 void add_user(Command &c) { //[N]
-    int g;
+    static decltype(get_BPT_pointer_T(userIndex)) tmp;
+    static User u;
     if (firstuser) {
-        g = 10;
+        u.privilege = 10;
         firstuser = 0;
     } else {
-        g = stoi(c['g']);
+        u.privilege = stoi(c['g']);
         decltype(loggeduser)::iterator I = loggeduser.find(c['c']);
-        if (I == loggeduser.end() || I->second <= g) {
+        if (I == loggeduser.end() || I->second <= u.privilege) {
             cout << -1 << endl;
             return;
         }
     }
-#ifdef need_userprivilege
-    userprivilege.insert(pair<Username, int>(c['u'], g));
-#endif
-    userIndex->insert(pair<Username, int>(
-        c['u'], userData->push(User(c['u'], c['p'], c['n'], c['m'], g))));
+    u.mailAddr = c['m'];
+    u.name = c['n'];
+    u.username = c['u'];
+    u.password = c['p'];
+    tmp.first = u.username;
+    tmp.second = userData->push(u);
+    userIndex->insert(tmp);
     cout << 0 << endl;
 }
 void login(Command &c) { //[F]
@@ -44,8 +43,10 @@ void login(Command &c) { //[F]
         return;
     }
     // cout << "zz\n";
-    decltype(get_BPT_T(*userIndex)) tmp(c['u'], INT_MINIMUN);
-    if (!BPTValue(*userIndex, tmp)) {
+    static decltype(get_BPT_pointer_T(userIndex)) tmp;
+    tmp.first = c['u'];
+    tmp.second = INT_MINIMUN;
+    if (!BPTValue(userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
@@ -76,8 +77,10 @@ void query_profile(Command &c) { //[SF]
         return;
     }
     int g = pos->second;
-    pair<Username, int> tmp(c['u'], INT_MINIMUN);
-    if (!BPTValue(*userIndex, tmp)) {
+    static decltype(get_BPT_pointer_T(userIndex)) tmp;
+    tmp.first = c['u'];
+    tmp.second = INT_MINIMUN;
+    if (!BPTValue(userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
@@ -97,8 +100,10 @@ void modify_profile(Command &c) {
         return;
     }
     int g = pos->second;
-    pair<Username, int> tmp(c['u'], INT_MINIMUN);
-    if (!BPTValue(*userIndex, tmp)) {
+    static decltype(get_BPT_pointer_T(userIndex)) tmp;
+    tmp.first = c['u'];
+    tmp.second = INT_MINIMUN;
+    if (!BPTValue(userIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
