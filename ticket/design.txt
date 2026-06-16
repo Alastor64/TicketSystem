@@ -41,7 +41,7 @@ BPT<stationName,arriveTrain>"arrivetrain"O(10000*100*36)36M
 内存：
 map<username,privilege>loggeduser记录登录状态
 class command
-	char*key[],*argument[]
+	char*argument[]
 	int timestamp
 
 算法(在内存中)：
