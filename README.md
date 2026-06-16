@@ -49,3 +49,5 @@ StationName|arraystring<31>
 query_ticket：在外存中同时根据起点站与终点站遍历leaveTrain与arriveTrain，将重合的火车index存入内存依次暴力判断其是否符合条件
 query_transfer：将所有经过起终点的车的index存入内存，两两搭配、暴力枚举中转站
 refund_ticket：退票成功时，根据被退票的发车日和火车index遍历pendingOrder，暴力判断能否候补
+
+## 一些说明

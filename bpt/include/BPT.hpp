@@ -312,22 +312,22 @@ template <typename T, int degree = getDegree<T>()> class BPT {
 };
 
 template <typename Key, typename Value, int degree>
-bool BPTValue(BPT<pair<Key, Value>, degree> &bpt,
+bool BPTValue(BPT<pair<Key, Value>, degree> *bpt,
               pair<Key, Value> &tmp) { // return if key in bpt
-    int index = bpt.lower_bound(tmp);
-    // cout << index << bpt.Gtmp.a[index].first << "|" << tmp.first << "\n";
-    if (index == bpt.END || bpt.Gtmp.a[index].first != tmp.first) {
+    int index = bpt->lower_bound(tmp);
+    // cout << index << bpt->Gtmp.a[index].first << "|" << tmp.first << "\n";
+    if (index == bpt->END || bpt->Gtmp.a[index].first != tmp.first) {
         return 0;
     }
-    tmp.second = bpt.Gtmp.a[index].second;
+    tmp.second = bpt->Gtmp.a[index].second;
     return 1;
 }
 template <typename T, int degree>
-bool BPTContain(BPT<T, degree> &bpt, const T &tmp) {
-    int index = bpt.lower_bound(tmp);
-    if (index == bpt.END || bpt.Gtmp.a[index] != tmp) {
+bool BPTContain(BPT<T, degree> *bpt, const T &tmp) {
+    int index = bpt->lower_bound(tmp);
+    if (index == bpt->END || bpt->Gtmp.a[index] != tmp) {
         return 0;
     }
     return 1;
 }
-template <typename T, int degree> T get_BPT_T(BPT<T, degree> &bpt) {}
+template <typename T, int degree> T get_BPT_pointer_T(BPT<T, degree> *bpt);

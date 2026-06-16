@@ -1,6 +1,4 @@
 #include "command.hpp"
-#include "order.hpp"
-#include "train.hpp"
 int main() {
     std::ios::sync_with_stdio(0);
     cin.tie(0);

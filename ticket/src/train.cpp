@@ -85,10 +85,10 @@ void Train::load(Command &c, int d1, int d2) {
     type = c['y'].front();
 }
 void add_train(Command &c) {
-    static decltype(get_BPT_T(*trainIndex)) tmp;
+    static decltype(get_BPT_pointer_T(trainIndex)) tmp;
     tmp.first = c['i'];
     tmp.second = INT_MINIMUN;
-    if (BPTValue(*trainIndex, tmp)) {
+    if (BPTValue(trainIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
@@ -101,18 +101,18 @@ void add_train(Command &c) {
     static Train t;
     t.load(c, d1, d2);
     trainIndex->insert(
-        decltype(get_BPT_T(*trainIndex))(t.trainID, trainData->push(t)));
+        decltype(get_BPT_pointer_T(trainIndex))(t.trainID, trainData->push(t)));
     cout << 0 << endl;
 }
 void delete_train(Command &c) {
-    static decltype(get_BPT_T(*trainIndex)) tmp;
+    static decltype(get_BPT_pointer_T(trainIndex)) tmp;
     tmp.first = c['i'];
     tmp.second = INT_MINIMUN;
-    if (!BPTValue(*trainIndex, tmp)) {
+    if (!BPTValue(trainIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
-    if (BPTContain(*releasedTrainIndex, tmp.second)) {
+    if (BPTContain(releasedTrainIndex, tmp.second)) {
         cout << -1 << endl;
         return;
     }
@@ -123,14 +123,14 @@ void delete_train(Command &c) {
     cout << 0 << endl;
 }
 void release_train(Command &c) {
-    static decltype(get_BPT_T(*trainIndex)) tmp;
+    static decltype(get_BPT_pointer_T(trainIndex)) tmp;
     tmp.first = c['i'];
     tmp.second = INT_MINIMUN;
-    if (!BPTValue(*trainIndex, tmp)) {
+    if (!BPTValue(trainIndex, tmp)) {
         cout << -1 << endl;
         return;
     }
-    if (BPTContain(*releasedTrainIndex, tmp.second)) {
+    if (BPTContain(releasedTrainIndex, tmp.second)) {
         cout << -1 << endl;
         return;
     }
@@ -163,8 +163,8 @@ void release_train(Command &c) {
     cout << 0 << endl;
 }
 void query_train(Command &c) {
-    decltype(get_BPT_T(*trainIndex)) tmp(c['i'], INT_MINIMUN);
-    if (!BPTValue(*trainIndex, tmp)) {
+    decltype(get_BPT_pointer_T(trainIndex)) tmp(c['i'], INT_MINIMUN);
+    if (!BPTValue(trainIndex, tmp)) {
         cout << -1 << endl;
     }
     static Train t;
@@ -177,9 +177,9 @@ void query_train(Command &c) {
     cout << t.trainID << " " << t.type;
     static int sn[100];
     bool fg = 0;
-    decltype(get_BPT_T(*seatIndex)) tmp2(pair<int, int>(d, tmp.second),
-                                         INT_MINIMUN);
-    if (BPTValue(*seatIndex, tmp2)) {
+    decltype(get_BPT_pointer_T(seatIndex)) tmp2(pair<int, int>(d, tmp.second),
+                                                INT_MINIMUN);
+    if (BPTValue(seatIndex, tmp2)) {
         fg = 1;
         seatData->read(tmp2.second, sn);
     }
@@ -218,8 +218,8 @@ void query_ticket(Command &c) {
     if (c['s'] == c['t']) {
         throw "meaningless ticket";
     }
-    static decltype(get_BPT_T(*leaveTrain)) tmp1;
-    static decltype(get_BPT_T(*arriveTrain)) tmp2;
+    static decltype(get_BPT_pointer_T(leaveTrain)) tmp1;
+    static decltype(get_BPT_pointer_T(arriveTrain)) tmp2;
     tmp1.first = c['s'];
     tmp1.second.trainIndex = INT_MINIMUN;
     tmp2.first = c['t'];
@@ -294,8 +294,8 @@ void query_ticket(Command &c) {
     }
     maxPairedTrain = max(maxPairedTrain, cnt);
     cout << cnt << endl;
-    static decltype(get_BPT_T(*seatIndex)) tmp3;
-    static decltype(get_BPT_T(*releasedSeatNum)) tmp4;
+    static decltype(get_BPT_pointer_T(seatIndex)) tmp3;
+    static decltype(get_BPT_pointer_T(releasedSeatNum)) tmp4;
     static int sn[100];
     if (cnt) {
         if (c['p'] == "time" || c['p'].empty()) {
@@ -317,10 +317,10 @@ void query_ticket(Command &c) {
             tmp3.first.first = d - ans[i].leaveTime / DAY_MINUTES;
             tmp3.first.second = ans[i].trainIndex;
             tmp3.second = INT_MINIMUN;
-            if (!BPTValue(*seatIndex, tmp3)) {
+            if (!BPTValue(seatIndex, tmp3)) {
                 tmp4.first = ans[i].trainIndex;
                 tmp4.second = INT_MINIMUN;
-                BPTValue(*releasedSeatNum, tmp4);
+                BPTValue(releasedSeatNum, tmp4);
                 cout << tmp4.second << endl;
             } else {
                 seatData->read(tmp3.second, sn);
@@ -338,20 +338,20 @@ void buy_ticket(Command &c) {
         cout << -1 << endl;
         return;
     }
-    static decltype(get_BPT_T(*userIndex)) tmpu;
+    static decltype(get_BPT_pointer_T(userIndex)) tmpu;
     tmpu.first = c['u'];
     tmpu.second = INT_MINIMUN;
-    if (!BPTValue(*userIndex, tmpu)) {
+    if (!BPTValue(userIndex, tmpu)) {
         throw "abab";
     }
-    static decltype(get_BPT_T(*trainIndex)) tmp1;
+    static decltype(get_BPT_pointer_T(trainIndex)) tmp1;
     tmp1.first = c['i'];
     tmp1.second = INT_MINIMUN;
-    if (!BPTValue(*trainIndex, tmp1)) {
+    if (!BPTValue(trainIndex, tmp1)) {
         cout << -1 << endl;
         return;
     }
-    if (!BPTContain(*releasedTrainIndex, tmp1.second)) {
+    if (!BPTContain(releasedTrainIndex, tmp1.second)) {
         cout << -1 << endl;
         return;
     }
@@ -381,7 +381,7 @@ void buy_ticket(Command &c) {
         cout << -1 << endl;
         return;
     }
-    static decltype(get_BPT_T(*seatIndex)) tmp2;
+    static decltype(get_BPT_pointer_T(seatIndex)) tmp2;
     tmp2.first.first = d;
     tmp2.first.second = tmp1.second;
     tmp2.second = INT_MINIMUN;
@@ -410,7 +410,7 @@ void buy_ticket(Command &c) {
             od.timestamp = tt;
         }
     };
-    if (!BPTValue(*seatIndex, tmp2)) {
+    if (!BPTValue(seatIndex, tmp2)) {
         for (int i = 0; i < t.stationNum - 1; i++) {
             sn[i] = t.seatNum;
             if (i >= pos1 && i < pos2) {
@@ -436,7 +436,7 @@ void buy_ticket(Command &c) {
         for (int i = pos1 + 1; i < pos2; i++) {
             mn = min(sn[i], mn);
         }
-        static decltype(get_BPT_T(*pendingOrder)) tmpo;
+        static decltype(get_BPT_pointer_T(pendingOrder)) tmpo;
         if (mn < n) {
             if (c['q'] == "true") {
                 od.status = STATUS::PENDING;
@@ -475,13 +475,13 @@ void query_order(Command &c) {
         cout << -1 << endl;
         return;
     }
-    static decltype(get_BPT_T(*userIndex)) tmp1;
+    static decltype(get_BPT_pointer_T(userIndex)) tmp1;
     tmp1.first = c['u'];
     tmp1.second = INT_MINIMUN;
-    if (!BPTValue(*userIndex, tmp1)) {
+    if (!BPTValue(userIndex, tmp1)) {
         throw "unknown error in query_order";
     }
-    static decltype(get_BPT_T(*orderIndex)) tmp2;
+    static decltype(get_BPT_pointer_T(orderIndex)) tmp2;
     tmp2.first = tmp1.second;
     tmp2.second = pair<int, int>(INT_MINIMUN, INT_MINIMUN);
     orderIndex->Gpos = orderIndex->lower_bound(tmp2);
@@ -508,13 +508,13 @@ void refund_ticket(Command &c) {
         cout << -1 << endl;
         return;
     }
-    static decltype(get_BPT_T(*userIndex)) tmp1;
+    static decltype(get_BPT_pointer_T(userIndex)) tmp1;
     tmp1.first = c['u'];
     tmp1.second = INT_MINIMUN;
-    if (!BPTValue(*userIndex, tmp1)) {
+    if (!BPTValue(userIndex, tmp1)) {
         throw "unknown error in refund_ticket";
     }
-    static decltype(get_BPT_T(*orderIndex)) tmp2;
+    static decltype(get_BPT_pointer_T(orderIndex)) tmp2;
     tmp2.first = tmp1.second;
     tmp2.second = pair<int, int>(INT_MINIMUN, INT_MINIMUN);
     orderIndex->Gpos = orderIndex->lower_bound(tmp2);
@@ -549,7 +549,7 @@ void refund_ticket(Command &c) {
         cout << -1 << endl;
         return;
     }
-    static decltype(get_BPT_T(*pendingOrder)) tmp3;
+    static decltype(get_BPT_pointer_T(pendingOrder)) tmp3;
     if (od.status == STATUS::PENDING) {
         od.status = STATUS::REFUNDED;
         orderData->update(orderIndex->Gvalue().second.second, od);
@@ -566,11 +566,11 @@ void refund_ticket(Command &c) {
     }
     od.status = STATUS::REFUNDED;
     orderData->update(orderIndex->Gvalue().second.second, od);
-    static decltype(get_BPT_T(*seatIndex)) tmp4;
+    static decltype(get_BPT_pointer_T(seatIndex)) tmp4;
     tmp4.first.first = od.day;
     tmp4.first.second = od.trainIndex;
     tmp4.second = INT_MINIMUN;
-    if (!BPTValue(*seatIndex, tmp4)) {
+    if (!BPTValue(seatIndex, tmp4)) {
         throw "unknown error in refund_ticket3";
     }
     static int sn[100];
@@ -578,7 +578,7 @@ void refund_ticket(Command &c) {
     for (int i = od.beginPos; i < od.endPos; i++) {
         sn[i] += od.num;
     }
-    static decltype(get_BPT_T(*pendingOrder)) tmp5;
+    static decltype(get_BPT_pointer_T(pendingOrder)) tmp5;
     tmp5.first.first = od.day;
     tmp5.first.second = od.trainIndex;
     tmp5.second.timestamp = INT_MINIMUN;
@@ -619,8 +619,8 @@ void query_transfer(Command &c) {
     if (c['s'] == c['t']) {
         throw "meaningless ticket";
     }
-    static decltype(get_BPT_T(*leaveTrain)) tmp1;
-    static decltype(get_BPT_T(*arriveTrain)) tmp2;
+    static decltype(get_BPT_pointer_T(leaveTrain)) tmp1;
+    static decltype(get_BPT_pointer_T(arriveTrain)) tmp2;
     tmp1.first = c['s'];
     tmp1.second.trainIndex = INT_MINIMUN;
     tmp2.first = c['t'];
@@ -711,11 +711,11 @@ void query_transfer(Command &c) {
         }
         static int getSeat(Train &t, int trainIndex, int day, int pos1,
                            int pos2) {
-            static decltype(get_BPT_T(*seatIndex)) tmp;
+            static decltype(get_BPT_pointer_T(seatIndex)) tmp;
             tmp.first.first = day;
             tmp.first.second = trainIndex;
             tmp.second = INT_MINIMUN;
-            if (!BPTValue(*seatIndex, tmp)) {
+            if (!BPTValue(seatIndex, tmp)) {
                 return t.seatNum;
             }
             static int sn[100];
