@@ -47,11 +47,16 @@ StationName|arraystring<31>
 
 ## 部分算法设计
 query_ticket：在外存中同时根据起点站与终点站遍历leaveTrain与arriveTrain，将重合的火车index存入内存依次暴力判断其是否符合条件  
-query_transfer：将所有经过起终点的车的index存入内存，两两搭配、暴力枚举中转站  
+  
+query_transfer：将所有经过起终点的车的index存入内存，两两搭配、暴力枚举中转站
+    
 refund_ticket：退票成功时，根据被退票的发车日和火车index遍历pendingOrder，暴力判断能否候补  
 
 ## 一些说明
 函数get_BPT_pointer_T(BPT<>*)没有实现，其作用只是为了获得B+树指针的value_type  
-函数BPTValue(BPT< pair<T,U> >*,pair<T,U>&tmp)会在B+树中查找key=tmp.first的最小键值对，如果没有返回0，否则将tmp.second设为最小键值对的value并返回1  
+  
+函数BPTValue(BPT< pair<T,U> >*,pair<T,U>&tmp)会在B+树中查找key=tmp.first的最小键值对，如果没有返回0，否则将tmp.second设为最小键值对的value并返回1 
+   
 函数BPTContain(BPT<T>*,T tmp)返回tmp是否在B+树中  
+  
 对于涉及外存的对象，使用指针的目的是为了方便clean时重新构造。  
